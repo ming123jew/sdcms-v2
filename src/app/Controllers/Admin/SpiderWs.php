@@ -46,7 +46,7 @@ class SpiderWs extends BaseController
         //绑定用户id
         $this->bindUid($this->client_data->uid);
         //检测任务状态  返回当前任务队列
-        $this->Data['cur_queue'] = yield $this->redis_pool->getCoroutine()->lRange($this->redis_home_webPage_spider_task_queue_key,0,-1);
+        $this->Data['cur_queue'] = $this->redis->lRange($this->redis_home_webPage_spider_task_queue_key,0,-1);
         $this->send(['type' => 'welcome', 'id' => $this->client_data->uid,'fd'=>$this->fd,'cur_queue'=>$this->Data['cur_queue']]);
     }
 
@@ -58,10 +58,10 @@ class SpiderWs extends BaseController
         $this->Data['match'] = [];
         $this->Data['add'] = false; //任务添加情况
 
-        $queue_count = intval( yield $this->redis_pool->getCoroutine()->lLen($this->redis_home_webPage_spider_task_queue_key) );
+        $queue_count = intval( $this->redis->lLen($this->redis_home_webPage_spider_task_queue_key) );
         if($queue_count < $this->redis_home_webPage_spider_task_limt){
             //任务列表
-            yield $this->redis_pool->getCoroutine()->rpush( $this->redis_home_webPage_spider_task_queue_key,['task_id'=>$this->Data['task_id'],'url'=>$this->Data['url'],'match'=>$this->Data['match']]);
+            $this->redis->rpush( $this->redis_home_webPage_spider_task_queue_key,['task_id'=>$this->Data['task_id'],'url'=>$this->Data['url'],'match'=>$this->Data['match']]);
 
             //页码参数
             $this->Data['param_p'] = 'p';
@@ -71,7 +71,7 @@ class SpiderWs extends BaseController
 
             //子任务列队
             for ($i=1;$i<=$this->Data['count_p'];$i++){
-                yield $this->redis_pool->getCoroutine()->rpush( $this->redis_home_webPage_spider_task_queue_sub_key_.$this->Data['task_id'],$this->Data['url'].'?'.$this->Data['param_p'].'='.$i);
+                $this->redis->rpush( $this->redis_home_webPage_spider_task_queue_key.'_'.$this->Data['task_id'],$this->Data['url'].'?'.$this->Data['param_p'].'='.$i);
             }
             $add = true;
 
@@ -79,7 +79,7 @@ class SpiderWs extends BaseController
             $add = false;
         }
         //检测任务状态  返回当前任务队列
-        $this->Data['cur_queue'] = yield $this->redis_pool->getCoroutine()->lRange($this->redis_home_webPage_spider_task_queue_key,0,-1);
+        $this->Data['cur_queue'] = $this->redis->lRange($this->redis_home_webPage_spider_task_queue_key,0,-1);
         $this->sendToUid($this->Data['user_info']['uid'],['cur_queue'=>$this->Data['cur_queue']]);
     }
 
@@ -102,14 +102,14 @@ class SpiderWs extends BaseController
             if($this->Data['p'] == 0) {$this->Data['p'] = 1;}
             $this->Data['end'] = 10;
             $this->Data['start'] = ($this->Data['p']-1)*$this->Data['end'];
-            $this->Data['SpiderTaskModel'] = yield  $this->Model['SpiderTaskModel']->getAllByPage($this->Data['start'],$this->Data['end']);
+            $this->Data['SpiderTaskModel'] =  $this->Model['SpiderTaskModel']->getAllByPage($this->Data['start'],$this->Data['end']);
             if($this->Data['SpiderTaskModel']['result'])
             {
                 foreach ($this->Data['SpiderTaskModel']['result'] as $n=> $v)
                 {
-                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] = (yield check_role('Admin', 'Spider', 'spider_edit', $this)) ? '<a href="' . url('Admin', 'Spider', 'spider_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
-                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] .= (yield check_role('Admin', 'Spider', 'spider_delete', $this)) ? '<a  onclick="spider_delete(' . $v['id'] . ')" href="javascript:;">删除</a> |' : '';
-                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] .= (yield check_role('Admin', 'Spider', 'spider_delete', $this)) ? '<a  onclick="spider_start(' . $v['id'] . ')" href="javascript:;"><em id="task_'.$v['id'].'">开始抓取</em></a>' : '';
+                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] = (check_role('Admin', 'Spider', 'spider_edit', $this)) ? '<a href="' . url('Admin', 'Spider', 'spider_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
+                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] .= (check_role('Admin', 'Spider', 'spider_delete', $this)) ? '<a  onclick="spider_delete(' . $v['id'] . ')" href="javascript:;">删除</a> |' : '';
+                    $this->Data['SpiderTaskModel']['result'][$n]['str_manage'] .= (check_role('Admin', 'Spider', 'spider_delete', $this)) ? '<a  onclick="spider_start(' . $v['id'] . ')" href="javascript:;"><em id="task_'.$v['id'].'">开始抓取</em></a>' : '';
                 }
             }
 
@@ -119,8 +119,8 @@ class SpiderWs extends BaseController
             parent::templateData('uid',intval($this->Data['user_info']['id']));
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/spider_task_list');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/spider_task_list',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -144,7 +144,7 @@ class SpiderWs extends BaseController
             }else{
                 $this->Data['http_post']['info']['create_time']=time();
                 $this->Model['SpiderTaskModel'] =  $this->loader->model(SpiderTaskModel::class,$this);
-                $this->Data['SpiderTaskModel'] = yield $this->Model['SpiderTaskModel']->insertMultiple(array_keys($this->Data['http_post']['info']),array_values($this->Data['http_post']['info']));
+                $this->Data['SpiderTaskModel'] = $this->Model['SpiderTaskModel']->insertMultiple(array_keys($this->Data['http_post']['info']),array_values($this->Data['http_post']['info']));
                 if(!$this->Data['SpiderTaskModel'])
                 {
                     parent::httpOutputTis('SpiderTaskModel.');
@@ -156,18 +156,18 @@ class SpiderWs extends BaseController
         }else{
             //获取模型
             $this->ModelBusiness =  $this->loader->model(ModelBusiness::class,$this);
-            $selectModel= yield  $this->ModelBusiness->get_all_by_parent_id(0);
+            $selectModel=  $this->ModelBusiness->get_all_by_parent_id(0);
             //获取分类
             $parent_id  =  $this->http_input->postGet('parent_id') ?? 0;
             $this->Model['CategoryBusiness'] =  $this->loader->model(CategoryBusiness::class,$this);
-            $selectCategorys= yield  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($parent_id));
+            $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($parent_id));
             parent::templateData('selectModel',$selectModel);
             parent::templateData('selectCategorys',$selectCategorys);
             unset($selectModel,$parent_id,$selectCategorys);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/spider_add_and_edit');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/spider_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -186,7 +186,7 @@ class SpiderWs extends BaseController
             unset($data['info']['id']);
             $oldcatid = intval($data['info']['oldcatid']);
             unset($data['info']['oldcatid']);
-            $r_category_model = yield $this->Model['CategoryModel']->updateById($id,$data['info']);
+            $r_category_model = $this->Model['CategoryModel']->updateById($id,$data['info']);
             if(!$r_category_model)
             {
                 unset($data,$id,$oldcatid,$r_category_model);
@@ -198,23 +198,23 @@ class SpiderWs extends BaseController
         }else{
             $id = intval($this->http_input->postGet('id'));
             $this->Model['SpiderTaskModel'] = $this->loader->model(SpiderTaskModel::class,$this);
-            $d = yield $this->Model['SpiderTaskModel']->getById($id);
+            $d = $this->Model['SpiderTaskModel']->getById($id);
             if($id&&$d)
             {
                 //获取模型
                 $this->ModelBusiness =  $this->loader->model(ModelBusiness::class,$this);
-                $selectModel= yield  $this->ModelBusiness->get_all_by_parent_id(intval($d['model_id']));
+                $selectModel=  $this->ModelBusiness->get_all_by_parent_id(intval($d['model_id']));
                 //获取分类
                 $this->Model['CategoryBusiness'] =  $this->loader->model(CategoryBusiness::class,$this);
-                $selectCategorys= yield  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($d['catid']));
+                $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($d['catid']));
                 parent::templateData('selectModel',$selectModel);
                 parent::templateData('selectCategorys',$selectCategorys);
                 parent::templateData('d_spider_model',$d);
                 //web or app
                 unset($id,$d,$selectModel,$selectCategorys);
                 parent::webOrApp(function (){
-                    $template = $this->loader->view('app::Admin/spider_add_and_edit');
-                    $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                    $template = $this->loader->view('app::Admin/spider_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                    $this->http_output->end($template);
                 });
             }else{
                 unset($id,$d);

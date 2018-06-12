@@ -35,22 +35,22 @@ class User  extends Base{
             $this->http_output->end(json_encode($end),false);
         }else{
             $this->Model['UserModel'] = $this->loader->model(UserModel::class,$this);
-            $this->Data['UserModel'] = yield $this->Model['UserModel']->getAll();
+            $this->Data['UserModel'] = $this->Model['UserModel']->getAll();
 
             //增加管理操作
             foreach ($this->Data['UserModel'] as $key=>$value){
 
-                $this->Data['UserModel'][$key]['str_manage'] = (yield check_role('Admin','User','user_edit',$this)) ?'<a href="'.url('Admin','User','role_edit',["id" => $value['id']]).'">编辑</a> |':'';
-                $this->Data['UserModel'][$key]['str_manage'] .= (yield check_role('Admin','User','user_delete',$this)) ?'<a  onclick="role_delete('.$value['id'].')" href="javascript:;">删除</a>':'';
-                $this->Data['UserModel'][$key]['role'] = yield get_role_byid($value['roleid'],$this);//角色权限表所有数据 缓存标识
+                $this->Data['UserModel'][$key]['str_manage'] = (check_role('Admin','User','user_edit',$this)) ?'<a href="'.url('Admin','User','role_edit',["id" => $value['id']]).'">编辑</a> |':'';
+                $this->Data['UserModel'][$key]['str_manage'] .= (check_role('Admin','User','user_delete',$this)) ?'<a  onclick="role_delete('.$value['id'].')" href="javascript:;">删除</a>':'';
+                $this->Data['UserModel'][$key]['role'] = get_role_byid($value['roleid'],$this);//角色权限表所有数据 缓存标识
 
             }
             parent::templateData('allrole',$this->Data['UserModel']);
             unset($key,$value);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/user_lists');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/user_lists',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -67,8 +67,8 @@ class User  extends Base{
             parent::templateData('allrole',[]);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/user_add_and_edit');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/user_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }

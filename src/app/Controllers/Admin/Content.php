@@ -48,25 +48,26 @@ class Content extends Base
             if($this->Data['p'] == 0) {$this->Data['p'] = 1;}
             $this->Data['end'] = 10;
             $this->Data['start'] = ($this->Data['p']-1)*$this->Data['end'];
-            $this->Data['ContentModel'] = yield  $this->Model['ContentModel']->getAllByPage($this->Data['start'],$this->Data['end']);
-
+            $this->Data['ContentModel'] =  $this->Model['ContentModel']->getAllByPage($this->Data['start'],$this->Data['end']);
+            $this->Data['list'] = [];
             if($this->Data['ContentModel']['result'])
             {
                 foreach ($this->Data['ContentModel']['result'] as $n=> $v)
                 {
-                    $this->Data['ContentModel']['result'][$n]['str_manage'] = (yield check_role('Admin', 'Content', 'content_edit', $this)) ? '<a href="' . url('Admin', 'Content', 'content_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
-                    $this->Data['ContentModel']['result'][$n]['str_manage'] .= (yield check_role('Admin', 'Content', 'content_delete', $this)) ? '<a  onclick="content_delete(' . $v['id'] . ')" href="javascript:;">删除</a>' : '';
+                    $this->Data['list'][$n] = $v;
+                    $this->Data['list'][$n]['str_manage'] = check_role('Admin', 'Content', 'content_edit', $this) ? '<a href="' . url('Admin', 'Content', 'content_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
+                    $this->Data['list'][$n]['str_manage'] .= check_role('Admin', 'Content', 'content_delete', $this) ? '<a  onclick="content_delete(' . $v['id'] . ')" href="javascript:;">删除</a>' : '';
                 }
             }
-            parent::templateData('list',$this->Data['ContentModel']['result']);
+            parent::templateData('list',$this->Data['list']);
             parent::templateData('page',page_bar($this->Data['ContentModel']['num'],$this->Data['p'],10,5,$this));
             //parent::templateData('test',1);
             //unset($r);
             //web or app
             unset($n,$v);
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/content_list');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/content_list',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -122,7 +123,7 @@ class Content extends Base
 
             //[--start::添加文章{业务逻辑}--]
             $this->Model['ContentBusiness'] = $this->loader->model(ContentBusiness::class,$this);
-            $r = yield $this->Model['ContentBusiness']->content_add($data['info']);
+            $r = $this->Model['ContentBusiness']->content_add($data['info']);
             if($r)
             {
                 unset($data,$login_session);
@@ -138,7 +139,7 @@ class Content extends Base
             $parent_id  =  $this->http_input->postGet('parent_id') ?? 0;
             //显示分类
             $this->Model['CategoryBusiness'] =  $this->loader->model(CategoryBusiness::class,$this);
-            $selectCategorys= yield  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($parent_id));
+            $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($parent_id));
 
             parent::templateData('selectCategorys',$selectCategorys);
             parent::templateData('token',token('__CONTENT_ADD__'));
@@ -146,8 +147,8 @@ class Content extends Base
             unset($parent_id,$selectCategorys);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/content_add_and_edit');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/content_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -202,7 +203,7 @@ class Content extends Base
 
             //[--start::更新文章{业务逻辑}--]
             $this->Model['ContentBusiness'] = $this->loader->model(ContentBusiness::class,$this);
-            $r = yield $this->Model['ContentBusiness']->content_edit($id,$data['info'],$oldcatid);
+            $r = $this->Model['ContentBusiness']->content_edit($id,$data['info'],$oldcatid);
             if($r)
             {
                 unset($data,$id,$oldcatid,$login_session);
@@ -215,21 +216,21 @@ class Content extends Base
         }else{
             $id = $this->http_input->get('id');
             $this->Model['ContentModel'] =  $this->loader->model(ContentModel::class,$this);
-            $d = yield $this->Model['ContentModel']->getById($id);
+            $d = $this->Model['ContentModel']->getById($id);
 
             if($id && $d)
             {
                 //自动选择分类
                 $this->Model['CategoryBusiness'] =  $this->loader->model(CategoryBusiness::class,$this);
-                $selectCategorys= yield  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($d['catid']));
+                $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($d['catid']));
                 //$d['body'] = htmlspecialchars_decode($d['body']);
                 parent::templateData('d_content_model',$d);
                 parent::templateData('selectCategorys',$selectCategorys);
                 parent::templateData('token',token('__CONTENT_EDIT__'));
                 unset($id,$d,$selectCategorys);
                 parent::webOrApp(function (){
-                    $template = $this->loader->view('app::Admin/content_add_and_edit');
-                    $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                    $template = $this->loader->view('app::Admin/content_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                    $this->http_output->end($template);
                 });
             }else{
                 unset($id,$d);
@@ -249,12 +250,12 @@ class Content extends Base
             //查找对应文章，验证是否存在
             $id = $this->http_input->postGet('id');
             $this->Model['ContentModel'] =  $this->loader->model(ContentModel::class,$this);
-            $d = yield $this->Model['ContentModel']->getById(intval($id));
+            $d = $this->Model['ContentModel']->getById(intval($id));
             if($id && $d)
             {
                 //[--start::删除文章{业务逻辑}--]
                 $this->Model['ContentBusiness'] = $this->loader->model(ContentBusiness::class,$this);
-                $r = yield $this->Model['ContentBusiness']->delete_by_id_and_catid($id,$d['catid']);
+                $r = $this->Model['ContentBusiness']->delete_by_id_and_catid($id,$d['catid']);
                 if($r)
                 {
                     unset($id,$d);

@@ -8,7 +8,7 @@
 namespace app\Route;
 use Server\Route\IRoute;
 
-class WsRout implements IRoute
+class WsRoute implements IRoute
 {
     private $client_data;
     public function __construct()

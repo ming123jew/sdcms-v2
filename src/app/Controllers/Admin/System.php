@@ -42,7 +42,7 @@ class System extends Base
         }else{
 
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = yield $this->Model['MenuModel']->getAll();
+            $all = $this->Model['MenuModel']->getAll();
             $info = '';
 
             if($all){
@@ -53,8 +53,8 @@ class System extends Base
 
                     $all[$n]['parent_id_node'] = isset($r['parent_id']) ? ' class="child-of-node-' . $r['parent_id'] . '"' : '';
                     //$all[$n]['str_manage'] = checkRole('auth/menuAdd',["parent_id" => $r['id']]) ? '<a href="'.url("auth/menuAdd",["parent_id" => $r['id']]).'">添加子菜单</a> |':'';
-                    $all[$n]['str_manage'] = (yield check_role('Admin','System','menu_edit',$this)) ?'<a href="'.url('','','menu_edit',["menu_id" => $r['id']]).'">编辑</a> |':'';
-                    $all[$n]['str_manage'] .= (yield check_role('Admin','System','menu_delete',$this)) ?'<a  onclick="menu_delete('.$r['id'].')" href="javascript:;">删除</a>':'';
+                    $all[$n]['str_manage'] = (check_role('Admin','System','menu_edit',$this)) ?'<a href="'.url('','','menu_edit',["menu_id" => $r['id']]).'">编辑</a> |':'';
+                    $all[$n]['str_manage'] .= (check_role('Admin','System','menu_delete',$this)) ?'<a  onclick="menu_delete('.$r['id'].')" href="javascript:;">删除</a>':'';
                     $all[$n]['status'] = $r['status'] ? '开启' : '隐藏';
                 }
                 $str = "<tr id='node-\$id' \$parent_id_node>
@@ -81,8 +81,8 @@ class System extends Base
             unset($all,$tree,$n,$r,$id,$list_order,$name,$spacer,$m,$c,$a,$request,$status,$str_manage);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/system_menu');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/system_menu',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -105,7 +105,7 @@ class System extends Base
                 $this->http_input->post('remark'),
                 $this->http_input->post('cc'),
             ];
-            $r_menu_model = yield $this->Model['MenuModel']->insertMultiple(['parent_id','name','icon','m','c','a','url_param','status','remark','cc'],$data);
+            $r_menu_model = $this->Model['MenuModel']->insertMultiple(['parent_id','name','icon','m','c','a','url_param','status','remark','cc'],$data);
             if(!$r_menu_model){
                 unset($data,$r_menu_model);
                 parent::httpOutputTis('MenuModel添加请求失败.');
@@ -117,7 +117,7 @@ class System extends Base
         }else{
             $parent_id  =  $this->http_input->postGet('parent_id') ?? 0;
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = yield $this->Model['MenuModel']->getAll();
+            $all = $this->Model['MenuModel']->getAll();
             $info='';
             if($all) {
                 $selected = $parent_id;
@@ -137,8 +137,8 @@ class System extends Base
             unset($parent_id,$all,$info,$selected,$tree,$r,$array,$str,$parentid);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/system_menu_add_and_edit');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/system_menu_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -162,7 +162,7 @@ class System extends Base
                 'remark'=>$this->http_input->post('remark'),
                 'cc'=>$this->http_input->post('cc'),
             ];
-            $r_menu_model = yield $this->Model['MenuModel']->updateById($menu_id,$data);
+            $r_menu_model = $this->Model['MenuModel']->updateById($menu_id,$data);
             if(!$r_menu_model){
                 unset($menu_id,$data,$r_menu_model);
                 parent::httpOutputTis('MenuModel编辑请求失败.');
@@ -179,10 +179,10 @@ class System extends Base
             }else{
                 $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
                 // 查找单条记录
-                $d_menu_model = yield $this->Model['MenuModel']->getOneById($menu_id);
+                $d_menu_model = $this->Model['MenuModel']->getOneById($menu_id);
                 $parent_id  =  $d_menu_model['parent_id'];
                 //查找所有
-                $all = yield $this->Model['MenuModel']->getAll();
+                $all = $this->Model['MenuModel']->getAll();
                 $info='';
                 if($all) {
                     $selected = $parent_id;
@@ -202,8 +202,8 @@ class System extends Base
                 unset($d_menu_model,$parent_id,$all,$info,$selected,$r,$array,$str,$tree,$parentid,$where,$selected,$spacer,$name);
                 //web or app
                 parent::webOrApp(function (){
-                    $template = $this->loader->view('app::Admin/system_menu_add_and_edit');
-                    $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                    $template = $this->loader->view('app::Admin/system_menu_add_and_edit',['data'=>$this->TemplateData,'message'=>'']);
+                    $this->http_output->end($template);
                 });
             }
 
@@ -216,7 +216,7 @@ class System extends Base
         if($this->http_input->getRequestMethod()=='POST' && $menu_id){
             //查找是否存在子菜单
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = yield $this->Model['MenuModel']->getAll();
+            $all = $this->Model['MenuModel']->getAll();
             if($all){
                 $tree       = new Tree();
                 $tree->init($all);
@@ -226,7 +226,7 @@ class System extends Base
                     $arr_delete[] = $value['id'];
                 }
                 //print_r($arr_delete);
-                $r_menu_model = yield $this->Model['MenuModel']->delete($arr_delete);
+                $r_menu_model = $this->Model['MenuModel']->delete($arr_delete);
                 //print_r($all_child);
                 if(!$r_menu_model){
                     unset($menu_id,$all,$tree,$arr_all_child,$arr_delete,$key,$value,$r_menu_model);
@@ -254,28 +254,28 @@ class System extends Base
             $data['content'] = json_encode($post);
             $data['id'] = 1;
             //print_r($data);
-            $is_had = yield $this->Model['ConfigModel']->isHad();
+            $is_had = $this->Model['ConfigModel']->isHad();
             if( $is_had==false ){
                 //不存在
-                $r = yield $this->Model['ConfigModel']->addOne($data);
+                $r = $this->Model['ConfigModel']->addOne($data);
                 unset($post,$data,$is_had);
                 parent::httpOutputEnd('添加成功.','添加失败.',$r);
             }else{
                 //存在
-                $r = yield $this->Model['ConfigModel']->updateOne($data);
+                $r = $this->Model['ConfigModel']->updateOne($data);
                 unset($post,$data,$is_had);
                 parent::httpOutputEnd('更新成功.','更新失败.',$r);
             }
         }else{
-            $data = yield $this->Model['ConfigModel']->getOne();
+            $data = $this->Model['ConfigModel']->getOne();
             //print_r($data);
             $system_config = json_decode($data['result'][0]['content'],true);
             parent::templateData('pagedata',$system_config);
             unset($data,$system_config);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/system_config');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/system_config',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }

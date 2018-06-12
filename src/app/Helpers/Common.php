@@ -474,19 +474,18 @@ function get_role_byid($roleid,$context,$flag='__CACHE_ROLE__')
 {
     if($roleid&&$flag)
     {
-        $cache = Cache::getCache('WebCache');
-        $d = $cache->getOneMap($flag);
+        $d = get_cache($flag.'_'.$roleid);
         if($d)
         {
-            $all_role =  unserialize($d);
+            $all_role =  $d;
             print_r('role from cache.');
         }else{
             $m = get_instance()->loader->model(\app\Models\Data\RoleModel::class,$context);
             $d = $m->getAll();
             $all_role = $d;
             //存入缓存
-            $cache->addMap($flag,serialize($d));
-            print_r('role from db.');
+            set_cache($flag.'_'.$roleid,$d);
+            print_r('get_role_byid::role from db.');
 
         }
         $find = [];

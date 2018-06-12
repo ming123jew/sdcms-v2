@@ -1,8 +1,7 @@
 <?php
 
 namespace app\Controllers\Admin;
-use Server\Memory\Cache;
-use app\Tasks\WebCache;
+
 /**
  * Created by PhpStorm.
  * User: ming123jew
@@ -112,7 +111,7 @@ class Base extends \app\Controllers\BaseController
          //搞不清楚为啥无法使用协程 无法放到initialization 使用
          //$this->RolePrivModel  = $this->loader->model('RolePrivModel',$this);
          //$r =$privdb->get_one(array('m'=>ROUTE_M,'c'=>ROUTE_C,'a'=>$action,'roleid'=>$_SESSION['roleid'],'siteid'=>$siteid));
-         // $r =  yield $this->RolePrivModel->authRole($role_id,$this->ModuleName,$this->ControllerName,$this->ActionName);
+         // $r =  $this->RolePrivModel->authRole($role_id,$this->ModuleName,$this->ControllerName,$this->ActionName);
          //var_dump($r);
 
          //数据库方式
@@ -137,7 +136,7 @@ class Base extends \app\Controllers\BaseController
          /**************使用内存模式******************/
          // 获取当前用户组拥有的权限
          //print_r("ok");
-         $role_arr = unserialize(yield self::get_cache_role_data_byid($role_id));
+         $role_arr = unserialize(self::get_cache_role_data_byid($role_id));
          //print_r($role_arr);
          $can = false;
          if(is_array($role_arr)&&!empty($role_arr)){
@@ -189,8 +188,8 @@ class Base extends \app\Controllers\BaseController
         $obj = new \stdClass();
         $obj->http_output = $this->http_output;
         $obj->http_input = $this->http_input;
-        $s =  sessions($obj,$this->AdminSessionField);
-        print_r($s);
+        $s  =  sessions($obj,$this->AdminSessionField);
+        //print_r($s);
         if($s){
             return $s;
         }else{
@@ -207,7 +206,7 @@ class Base extends \app\Controllers\BaseController
     protected function get_cache_role_data_byid($role_id){
         //$cache = Cache::getCache('WebCache');
         //return $cache->getOneMap($this->AdminCacheRoleIdDataField.$role_id);
-        return yield get_cache($this->AdminCacheRoleIdDataField.$role_id);
+        return get_cache($this->AdminCacheRoleIdDataField.$role_id);
     }
 
     /**
@@ -218,7 +217,7 @@ class Base extends \app\Controllers\BaseController
     protected function get_cache_role_menu_byid($role_id){
         //$cache = Cache::getCache('WebCache');
         //return $cache->getOneMap($this->AdminCacheRoleIdMenuField.$role_id);
-        return yield get_cache($this->AdminCacheRoleIdMenuField.$role_id);
+        return get_cache($this->AdminCacheRoleIdMenuField.$role_id);
     }
 
 }

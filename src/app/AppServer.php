@@ -74,7 +74,8 @@ class AppServer extends SwooleDistributedServer
      */
     public function getEventControllerName()
     {
-        return 'AppController';
+        //return 'AppController';
+        return 'Home/Status';
     }
 
     /**

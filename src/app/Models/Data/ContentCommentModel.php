@@ -58,7 +58,7 @@ class ContentCommentModel extends BaseModel
                 ->limit("{$start},{$end}")
                 ->query();
             //嵌入总记录
-            $count_arr = $this->db->coroutineSend(null,"select count(0) as num from {$this->getTable()} where content_id={$content_id}");
+            $count_arr = $this->db->query("select count(0) as num from {$this->getTable()} where content_id={$content_id}");
         }else{
             $r = $this->db->from($this->prefix.$this->table,'a')
                 ->orderBy('a.id','desc')
@@ -66,7 +66,7 @@ class ContentCommentModel extends BaseModel
                 ->limit("{$start},{$end}")
                 ->query();
             //嵌入总记录
-            $count_arr = $this->db->coroutineSend(null,"select count(0) as num from {$this->getTable()}");
+            $count_arr = $this->db->query("select count(0) as num from {$this->getTable()}");
         }
 
         $count = $count_arr['result'][0]['num'];

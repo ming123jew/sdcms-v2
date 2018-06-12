@@ -29,7 +29,7 @@ class RolePrivModel extends BaseModel
      * @throws \Throwable
      */
     public function getAll(){
-        $r = yield $this->db->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('role_id','asc')
             ->select('*')
             ->query();
@@ -47,7 +47,7 @@ class RolePrivModel extends BaseModel
      * @throws \Throwable
      */
     public function getByRoleId(int $role_id,$fields='*'){
-        $r = yield $this->db->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('role_id',$role_id)
             ->select($fields)
             ->query();
@@ -64,7 +64,7 @@ class RolePrivModel extends BaseModel
      * @throws \Throwable
      */
     public function deleteByRoleId(int $id){
-        $r = yield $this->db->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('role_id',$id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
@@ -86,8 +86,8 @@ class RolePrivModel extends BaseModel
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->db->coroutineSend(null, $sql);
-        $r = yield $this->db->insertInto($this->prefix.$this->table)
+//        $r = $this->db->coroutineSend(null, $sql);
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
             ->query();
@@ -111,7 +111,7 @@ class RolePrivModel extends BaseModel
      * @throws \Throwable
      */
     public function authRole(int $role_id,string $m,string $c,string $a,string $fields='*'){
-        $r = yield $this->db->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('role_id',$role_id)
             ->where('m',$m)
             ->where('c',$c)

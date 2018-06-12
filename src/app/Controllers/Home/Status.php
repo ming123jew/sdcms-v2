@@ -8,6 +8,7 @@
 namespace app\Controllers\Home;
 
 use app\Process\MyProcess;
+use Server\Components\Event\EventCoroutine;
 use Server\Components\Event\EventDispatcher;
 use Server\Components\Process\ProcessManager;
 use Server\Memory\Cache;
@@ -32,14 +33,11 @@ class Status extends BaseController{
     public function http_index(){
 
         //初始化页面  清除缓存
-        $cache = Cache::getCache('WsCache');
-        $key = 'get_log';
-        $cache->addMap($key,md5(1));
-        unset($key,$cache);
+
         //web or app
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Home/status');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Home/status',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
     }
 
@@ -93,10 +91,12 @@ class Status extends BaseController{
             },8192,$file_size);
         });
         EventDispatcher::getInstance()->removeAll('unlock'.$this->fd);
-        $message = EventDispatcher::getInstance()
-            ->addOnceCoroutine('unlock'.$this->fd)
-            ->setTimeout(99999999)
-            ->noException('timeout.');
+
+        $message = EventDispatcher::getInstance()->addOnceCoroutine('unlock'.$this->fd,function(EventCoroutine $e){
+                $e->setTimeout(99999999) ->noException('timeout.');
+        });
+
+
         $message = self::addbold($message);
         $end = ['type' => 'getlog','fd'=>$this->fd,'message'=>$message,'strlen'=>strlen($message)];
         //echo "\n".md5( json_encode($message) )."\n";

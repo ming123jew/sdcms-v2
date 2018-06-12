@@ -19,7 +19,6 @@ use app\Tasks\WebCache;
 class Main extends Base
 {
 
-
     /**
      * @param string $controller_name
      * @param string $method_name
@@ -40,8 +39,8 @@ class Main extends Base
 
         //web or app
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Admin/index');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Admin/index',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
     }
 
@@ -52,11 +51,11 @@ class Main extends Base
         $login_session = self::get_login_session();
         $this->Data['role_id'] = $login_session['roleid'];
 
-        $this->Data['http_ajaxgetmenu'] = unserialize(  yield parent::get_cache_role_menu_byid($this->Data['role_id'])??false );
+        $this->Data['http_ajaxgetmenu'] =   parent::get_cache_role_menu_byid($this->Data['role_id'])??false ;
         //缓存不存在，则进行数据库读取
         if(! $this->Data['http_ajaxgetmenu']){
-            $this->Data['http_ajaxgetmenu'] = yield self::_getRoleMenu($this->Data['role_id']);
-            print_r('not cache.');
+            $this->Data['http_ajaxgetmenu'] = self::_getRoleMenu($this->Data['role_id']);
+            print_r('http_ajaxgetmenu:not cache.');
         }
         $end = [
             'status' => 1,
@@ -80,7 +79,7 @@ class Main extends Base
 
         if($this->http_input->getRequestMethod()=='POST'){
             $this->Model['UserModel'] = $this->loader->model(UserModel::class,$this);
-            $this->Data['UserModel'] = yield $this->Model['UserModel']->getOneUserByUsernameAndPassword($this->http_input->post('username'),$this->http_input->post('password'));
+            $this->Data['UserModel'] = $this->Model['UserModel']->getOneUserByUsernameAndPassword($this->http_input->post('username'),$this->http_input->post('password'));
             print_r($this->Data['UserModel']);
             //验证失败
             if(empty($this->Data['UserModel'])){
@@ -100,16 +99,16 @@ class Main extends Base
                     //查询权限，并存到Cache
                     $role_id = $session_data['roleid'];
                     $this->Model['RolePrivModel'] = $this->loader->model(RolePrivModel::class,$this);
-                    $this->Data['RolePrivModel'] = yield  $this->Model['RolePrivModel']->getByRoleId($role_id);
+                    $this->Data['RolePrivModel'] =  $this->Model['RolePrivModel']->getByRoleId($role_id);
                     //cache存在并发内存泄漏,不再使用
                     //$cache = Cache::getCache('WebCache');
                    // $cache->addMap($this->AdminCacheRoleIdDataField.$role_id,serialize($d_model_rolepriv));
-                    yield set_cache($this->AdminCacheRoleIdDataField.$role_id,serialize($this->Data['RolePrivModel']));
+                    set_cache($this->AdminCacheRoleIdDataField.$role_id,($this->Data['RolePrivModel']));
 
                     //获取角色菜单，并存到cache
-                    $this->Data['role_menu'] = yield self::_getRoleMenu($role_id);
+                    $this->Data['role_menu'] = self::_getRoleMenu($role_id);
                     //$cache->addMap($this->AdminCacheRoleIdMenuField.$role_id,serialize($role_menu));
-                    yield set_cache($this->AdminCacheRoleIdMenuField.$role_id,serialize($this->Data['role_menu']));
+                    set_cache($this->AdminCacheRoleIdMenuField.$role_id,($this->Data['role_menu']));
 
                     $end = [
                         'status' => 1,
@@ -132,8 +131,8 @@ class Main extends Base
             parent::templateData('test',1);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Admin/login');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Admin/login',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
 
@@ -145,8 +144,8 @@ class Main extends Base
     public function http_logout(){
         $this->Data['AdminSessionField'] = sessions($this,$this->AdminSessionField);
 
-        yield set_cache($this->AdminCacheRoleIdDataField.$this->Data['AdminSessionField']['roleid'],null);
-        yield set_cache($this->AdminCacheRoleIdMenuField.$this->Data['AdminSessionField']['roleid'],null);
+        set_cache($this->AdminCacheRoleIdDataField.$this->Data['AdminSessionField']['roleid'],null);
+        set_cache($this->AdminCacheRoleIdMenuField.$this->Data['AdminSessionField']['roleid'],null);
 
         //销毁session
         $obj = new \stdClass();
@@ -158,8 +157,8 @@ class Main extends Base
         parent::templateData('message','成功退出登录.');
         parent::templateData('gourl',url('Admin','Main','index'));
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Admin/logout');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Admin/logout',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
         // 清除缓存数据
     }
@@ -192,7 +191,7 @@ class Main extends Base
     private function _getRoleMenu($role_id){
 
         $this->Model['MenuModel']  = $this->loader->model(MenuModel::class,$this);
-        $this->Data['MenuModel'] = yield $this->Model['MenuModel']->getAll($role_id);
+        $this->Data['MenuModel'] = $this->Model['MenuModel']->getAll($role_id);
 
         //处理数据添加url属性
         foreach ( $this->Data['MenuModel'] as $key=>$value){
