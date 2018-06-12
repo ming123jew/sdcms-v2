@@ -25,13 +25,14 @@ class UserModel extends BaseModel
     /**
      * @param int $id
      * @return bool
+     * @throws \Throwable
      */
     public function getById(int $id){
-        $val = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $val = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->orderBy('id','desc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -40,14 +41,15 @@ class UserModel extends BaseModel
     }
 
     /**
-     * 获取所有
-     * @return bool
+     *  获取所有
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getAll(){
-        $val = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $val = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','desc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -57,16 +59,17 @@ class UserModel extends BaseModel
 
     /**
      * @param $data
-     * @return bool | array
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function addUser($data){
-        $val = yield $this->mysql_pool->dbQueryBuilder
+        $val = $this->db
             ->insert($this->prefix.$this->table)
             ->set('username',$data['username'])
             ->set('password',$data['password'])
             ->set('email',$data['email'])
             ->set('regtime',time())
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -76,14 +79,15 @@ class UserModel extends BaseModel
 
     /**
      * @param $username
-     * @return bool | array
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function isExistUser($username){
-        $val = yield $this->mysql_pool->dbQueryBuilder->select('*')
+        $val = $this->db->select('*')
             ->from($this->prefix.$this->table)
             ->where('username',$username)
             ->limit(1)
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -94,15 +98,16 @@ class UserModel extends BaseModel
     /**
      * @param $username
      * @param $password
-     * @return mixed
+     * @return bool
+     * @throws \Throwable
      */
     public function getOneUserByUsernameAndPassword($username,$password){
-        $val = yield $this->mysql_pool->dbQueryBuilder->select('*')
+        $val = $this->db->select('*')
             ->from($this->prefix.$this->table)
             ->where('username',$username)
             ->where('password',$password)
             ->limit(1)
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{

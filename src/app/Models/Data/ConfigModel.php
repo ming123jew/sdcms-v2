@@ -21,14 +21,15 @@ class ConfigModel extends BaseModel
 
     /**
      * 查找配置信息，默认查找一条，实际只有一条
-     * @return bool
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function getOne(){
-        $val = yield $this->mysql_pool->dbQueryBuilder->select('*')
+        $val = $this->db->select('*')
             ->from($this->prefix.$this->table)
             ->limit(1)
             ->orderBy('id','asc')
-            ->coroutineSend();
+            ->query();
 
         if(empty($val['result'])){
             return false;
@@ -40,12 +41,13 @@ class ConfigModel extends BaseModel
     /**
      * 如不存在则插入配置信息
      * @param $data
-     * @return bool
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function addOne($data){
-        $val = yield $this->mysql_pool->dbQueryBuilder->set($data)
+        $val = $this->db->set($data)
             ->insert($this->prefix.$this->table)
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -56,13 +58,14 @@ class ConfigModel extends BaseModel
     /**
      * 更新配置信息
      * @param $data
-     * @return bool
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function updateOne($data){
-        $val = yield $this->mysql_pool->dbQueryBuilder->set('content',$data['content'])
+        $val = $this->db->set('content',$data['content'])
             ->where('id',$data['id'])
             ->update($this->prefix.$this->table)
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -72,10 +75,10 @@ class ConfigModel extends BaseModel
 
     /**
      * 查询是否存在，存在则返回其id
-     * @return mixed
+     * @return bool
      */
     public function isHad(){
-        $is_had = yield self::getOne();
+        $is_had = self::getOne();
 
         if($is_had!=false){
             return $is_had['result'][0]['id'];
@@ -86,14 +89,15 @@ class ConfigModel extends BaseModel
 
     /**
      * 获取所有菜单
-     * @return bool
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
     public function getAll(){
-        $val = yield $this->mysql_pool->dbQueryBuilder->select('*')
+        $val = $this->db->select('*')
             ->from($this->prefix.$this->table)
             ->orderBy('list_order','asc')
             ->orderBy('id','asc')
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{

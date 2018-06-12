@@ -147,7 +147,7 @@ class BaseController extends Controller
     }
 
     protected function test(){
-        $v = yield $this->redis_pool->getCoroutine()->set('a','aaaa');
+        $v =  $this->redis->set('a','aaaa');
         print_r($v);
         print_r('test_test');
 

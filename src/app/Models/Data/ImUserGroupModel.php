@@ -23,14 +23,16 @@ class ImUserGroupModel extends BaseModel
 
     /**
      * 根据UID获取所有数据
-     * @return bool
+     * @param int $uid
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getAllByUid(int $uid){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->where('uid',$uid)
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -38,15 +40,11 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-    /**
-     * 获取所有数据
-     * @return bool
-     */
     public function getAll(){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -54,22 +52,16 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-    /**
-     * 后台列表
-     * @param int $start
-     * @param int $end
-     * @return bool
-     */
     public function getAllByPage(int $start,int $end=10){
 
         $m = $this->loader->model(ContentHitsModel::class,$this);
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','desc')
             ->select('*')
             ->limit("{$start},{$end}")
-            ->coroutineSend();
+            ->query();
         //嵌入总记录
-        $count_arr = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"select count(0) as num from {$this->getTable()}");
+        $count_arr = $this->db->query("select count(0) as num from {$this->getTable()}");
         $count = $count_arr['result'][0]['num'];
         if($count>$end){
             $r['num'] =$count;
@@ -84,17 +76,12 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-    /**
-     * @param int $id
-     * @param string $fields
-     * @return bool
-     */
     public function getById(int $id,$fields='*')
     {
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -102,14 +89,9 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function deleteById(int $id,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->coroutineSend($transaction_id);
+    public function deleteById(int $id){
+        $r = $this->db->from($this->prefix.$this->table)
+            ->where('id',$id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -118,25 +100,18 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-    /**
-     * 插入多条数据
-     * @param array $intoColumns
-     * @param array $intoValues
-     * @param null $transaction_id
-     * @return bool
-     */
-    public function insertMultiple( array $intoColumns,array $intoValues ,$transaction_id=null){
+    public function insertMultiple( array $intoColumns,array $intoValues ){
         //原生sql执行
 //        $sql = 'INSERT INTO '.$this->prefix.$this->table.'(role_id,m,c,a,menu_id) VALUES';
 //        foreach ($arr as $key=>$value){
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null, $sql);
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+//        $r = $this->db->coroutineSend(null, $sql);
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -145,18 +120,11 @@ class ImUserGroupModel extends BaseModel
         }
     }
 
-    /**
-     * 根据ID更新单条
-     * @param int $id
-     * @param array $columns_values
-     * @param null $transaction_id
-     * @return bool
-     */
-    public function updateById(int $id,array $columns_values,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->update($this->prefix.$this->table)
+    public function updateById(int $id,array $columns_values){
+        $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;

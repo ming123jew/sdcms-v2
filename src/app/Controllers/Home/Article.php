@@ -30,18 +30,18 @@ class Article extends Base
 
             $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
             //[读取内容+点击+更新点击:start]
-            $d = yield $this->Model['HomeBusiness']->get_article($id);
+            $d = $this->Model['HomeBusiness']->get_article($id);
             //[读取内容+点击+更新点击:end]
 
             //获取对应的栏目名称
-            $d['catname'] = yield get_catname_by_catid( $d['catid'],$this);
+            $d['catname'] = get_catname_by_catid( $d['catid'],$this);
 
             //[获取推荐:start]
-            $d_get_recommend = yield $this->Model['HomeBusiness']->get_recommend();
+            $d_get_recommend = $this->Model['HomeBusiness']->get_recommend();
             //[获取推荐:end]
 
             //[获取最新评论:start]
-            $d_get_new_comment = yield $this->Model['HomeBusiness']->get_new_comment();
+            $d_get_new_comment = $this->Model['HomeBusiness']->get_new_comment();
             //[获取最新评论:end]
 
             $d['body'] = htmlspecialchars_decode($d['body']);
@@ -56,8 +56,8 @@ class Article extends Base
             unset($id,$d,$d_get_recommend,$d_get_new_comment,$date);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Home/article_read');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']),false);
+                $template = $this->loader->view('app::Home/article_read',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template,false);
             });
         }else{
             unset($id);
@@ -75,20 +75,20 @@ class Article extends Base
         if($catid>0)
         {
             //获取栏目最新信息
-            $category = yield get_catname_by_catid($catid,$this,'*');
+            $category = get_catname_by_catid($catid,$this,'*');
             $p = intval( $this->http_input->postGet('p') );
             if($p == 0) {$p = 1;}
             $end = 10;
             $start = ($p-1)*$end;
             $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
             //[获取分类最新文章:start]
-            $d_get_new = yield $this->Model['HomeBusiness']->get_new($catid,$start,$end);
+            $d_get_new = $this->Model['HomeBusiness']->get_new($catid,$start,$end);
             //[获取分类最新文章:end]
             //[获取推荐:start]
-            $d_get_recommend = yield $this->Model['HomeBusiness']->get_recommend();
+            $d_get_recommend = $this->Model['HomeBusiness']->get_recommend();
             //[获取推荐:end]
             //[获取最新评论:start]
-            $d_get_new_comment = yield $this->Model['HomeBusiness']->get_new_comment();
+            $d_get_new_comment = $this->Model['HomeBusiness']->get_new_comment();
             //[获取最新评论:end]
 
             parent::templateData('category',$category);
@@ -103,8 +103,8 @@ class Article extends Base
             unset($catid,$category,$p,$start,$end,$d_get_new,$d_get_recommend,$d_get_new_comment);
             //web or app
             parent::webOrApp(function (){
-                $template = $this->loader->view('app::Home/article_list');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Home/article_list',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }else{
             unset($catid);
@@ -130,7 +130,7 @@ class Article extends Base
         $praise = intval( $this->http_input->postGet('praise') );
         if($content_id>0){
             $this->Model['ContentHitsModel'] = $this->loader->model(ContentHitsModel::class,$this);
-            $r = yield $this->Model['ContentHitsModel']->updatePraise($content_id,['praise'=>$praise]);
+            $r = $this->Model['ContentHitsModel']->updatePraise($content_id,['praise'=>$praise]);
             unset($content_id,$praise);
             parent::httpOutputEnd('点赞成功.','点赞失败',$r);
         }else{
@@ -177,7 +177,7 @@ class Article extends Base
                 $this->httpOutputTis('请输入用户名、邮箱、评论内容.');
             }else{
                 $this->Model['ContentCommentModel'] = $this->loader->model(ContentCommentModel::class,$this);
-                $r = yield $this->Model['ContentCommentModel']->insertMultiple(array_keys($data),array_values($data));
+                $r = $this->Model['ContentCommentModel']->insertMultiple(array_keys($data),array_values($data));
                 unset($content_id,$catid,$data,$title,$content,$session_user,$uid,$username,$email);
                 parent::httpOutputEnd('评论成功.','评论失败',$r);
             }
@@ -200,7 +200,7 @@ class Article extends Base
             $end = 10;
             $start = ($p-1)*$end;
             $this->Model['ContentCommentModel'] = $this->loader->model(ContentCommentModel::class,$this);
-            $r = yield $this->Model['ContentCommentModel']->getAllByPage($content_id,$start,$end);
+            $r = $this->Model['ContentCommentModel']->getAllByPage($content_id,$start,$end);
             if($r)
             {
                 $end = [

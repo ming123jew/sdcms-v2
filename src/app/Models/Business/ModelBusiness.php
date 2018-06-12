@@ -21,7 +21,7 @@ class ModelBusiness extends BaseBusiness
     public function get_all_by_parent_id(int $parent_id)
     {
         $this->ModelModel =  $this->loader->model(ModelModel::class,$this);
-        $all = yield $this->ModelModel->getAll();
+        $all = $this->ModelModel->getAll();
         $info='';
         if($all)
         {

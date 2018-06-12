@@ -38,7 +38,7 @@ class HomeBusiness extends BaseBusiness
     public function get_slide(string $flag='p',int $start=0,int $end=3,int $catid=0,int $status=0,$fields='*',bool $cache=true,int $expire=24*3600)
     {
         $this->ContentModel =  $this->loader->model(ContentModel::class,$this);
-        $d = yield $this->ContentModel->getByFlag($flag,$start,$end,$catid,$status,$fields);
+        $d = $this->ContentModel->getByFlag($flag,$start,$end,$catid,$status,$fields);
         if($d!=false){
             return $d;
         }else{
@@ -61,7 +61,7 @@ class HomeBusiness extends BaseBusiness
     public function get_recommend(string $flag='r',int $start=0,int $end=9,int $catid=0,int $status=0,$fields='*',bool $cache=true,int $expire=24*3600)
     {
         $this->ContentModel =  $this->loader->model(ContentModel::class,$this);
-        $d = yield $this->ContentModel->getByFlag($flag,$start,$end,$catid,$status,$fields);
+        $d = $this->ContentModel->getByFlag($flag,$start,$end,$catid,$status,$fields);
         if($d!=false){
             return $d;
         }else{
@@ -83,7 +83,7 @@ class HomeBusiness extends BaseBusiness
     public function get_new(int $catid=0,int $start=0,int $end=9,int $status=0,$fields='*',bool $cache=true,int $expire=24*3600)
     {
         $this->ContentModel =  $this->loader->model(ContentModel::class,$this);
-        $d = yield $this->ContentModel->getNew($catid,$start,$end);
+        $d = $this->ContentModel->getNew($catid,$start,$end);
         if($d!=false){
             return $d;
         }else{
@@ -116,7 +116,7 @@ class HomeBusiness extends BaseBusiness
     public function get_new_comment(int $catid=0,int $start=0,int $end=9,bool $cache=true,int $expire=24*3600)
     {
         $this->ContentCommentModel =  $this->loader->model(ContentCommentModel::class,$this);
-        $d = yield $this->ContentCommentModel->get_new_comment($catid,$start,$end);
+        $d = $this->ContentCommentModel->get_new_comment($catid,$start,$end);
         if($d!=false){
             return $d;
         }else{
@@ -146,11 +146,11 @@ class HomeBusiness extends BaseBusiness
     {
         $this->ContentModel =  $this->loader->model(ContentModel::class,$this);
         //获取内容
-        $d = yield $this->ContentModel->getArticle($content_id);
+        $d = $this->ContentModel->getArticle($content_id);
         //获取上下篇
         $d['prev'] = '最前一篇';
         $d['next'] = '最后一篇';
-        $d_prev_next = yield $this->ContentModel->getArticlePrevNext($d['id'],$d['catid']);
+        $d_prev_next = $this->ContentModel->getArticlePrevNext($d['id'],$d['catid']);
         foreach ($d_prev_next as $k=>$v)
         {
             if($v['flag']=='prev')
@@ -174,7 +174,7 @@ class HomeBusiness extends BaseBusiness
         }
         //更新点击
         $this->ContentHitsModel = $this->loader->model(ContentHitsModel::class,$this);
-        $d_ContentHitsModel = yield $this->ContentHitsModel->updateHits($content_id,$d);
+        $d_ContentHitsModel = $this->ContentHitsModel->updateHits($content_id,$d);
 
         if($d!=false&&$d_ContentHitsModel!=false){
             return $d;

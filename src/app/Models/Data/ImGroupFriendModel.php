@@ -21,18 +21,14 @@ class ImGroupFriendModel extends BaseModel
         return $this->prefix.$this->table;
     }
 
-    /**
-     * 根据UID获取所有数据
-     * @return bool
-     */
     public function getAllByGroupId(int $group_id){
         $m = $this->loader->model(UserModel::class,$this);
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table,'a')
+        $r = $this->db->from($this->prefix.$this->table,'a')
             ->join($m->getTable(),'a.friend_uid=b.id','left join','b')
             ->orderBy('a.id','asc')
             ->where('a.group_id',$group_id)
             ->select('a.*,b.username,b.sign,b.avatar')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -40,15 +36,11 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 获取所有数据
-     * @return bool
-     */
     public function getAll(){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -56,23 +48,17 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 后台列表
-     * @param int $start
-     * @param int $end
-     * @return bool
-     */
     public function getAllByPage(int $start,int $end=10){
 
         $m = $this->loader->model(ContentHitsModel::class,$this);
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table,'a')
+        $r = $this->db->from($this->prefix.$this->table,'a')
             ->join($m->getTable(),'a.id=b.content_id','left join','b')
             ->orderBy('a.id','desc')
             ->select('a.*,b.*')
             ->limit("{$start},{$end}")
-            ->coroutineSend();
+            ->query();
         //嵌入总记录
-        $count_arr = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null,"select count(0) as num from {$this->getTable()}");
+        $count_arr = $this->db->query("select count(0) as num from {$this->getTable()}");
         $count = $count_arr['result'][0]['num'];
         if($count>$end){
             $r['num'] =$count;
@@ -87,17 +73,12 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * @param int $id
-     * @param string $fields
-     * @return bool
-     */
     public function getById(int $id,$fields='*')
     {
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -105,19 +86,14 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 读取文章内容
-     * @param int $id
-     * @return bool
-     */
     public function getArticle(int $id)
     {
         $m = $this->loader->model(ContentHitsModel::class,$this);
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table,'a')
+        $r = $this->db->from($this->prefix.$this->table,'a')
             ->join($m->getTable(),'a.id=b.content_id','left join','b')
             ->where('a.id',$id)
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -125,11 +101,6 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 获取上下篇
-     * @param int $id
-     * @return bool
-     */
     public function getArticlePrevNext(int $id,int $catid=0)
     {
         if($catid>0)
@@ -142,7 +113,7 @@ class ImGroupFriendModel extends BaseModel
 
         }
         //echo $sql;
-        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null,$sql);
+        $r = $this->db->query($sql);
         //print_r( $r);
         if(empty($r['result'])){
             return false;
@@ -151,16 +122,6 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 获取幻灯[flag:p|t|r]列表
-     * @param string $flag
-     * @param int $start
-     * @param int $end
-     * @param int $catid
-     * @param int $status
-     * @param string $fields
-     * @return bool
-     */
     public function getByFlag(string $flag='p',int $start=0,int $end=9,int $catid=0,int $status=0,$fields='*')
     {
         //FIND_IN_SET();
@@ -172,8 +133,7 @@ class ImGroupFriendModel extends BaseModel
         }
         //echo $sql;
 
-        $r = yield $this->mysql_pool->dbQueryBuilder
-            ->coroutineSend('',$sql);
+        $r = $this->db->query($sql);
 
         if(empty($r['result'])){
             return false;
@@ -182,14 +142,6 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * @param int $catid
-     * @param int $start
-     * @param int $end
-     * @param int|null $status
-     * @param string $fields
-     * @return bool
-     */
     public function getNew(int $catid=0,int $start=0,int $end=9,int $status=null,$fields='*')
     {
         if($status!=null){
@@ -214,10 +166,9 @@ class ImGroupFriendModel extends BaseModel
             $sql = "select {$fields} from {$this->getTable()} as a {$join} $where  order by a.id desc limit {$start},{$end} ";
         }
         //echo $sql;
-        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend('',$sql);
+        $r = $this->db->query($sql);
         //嵌入总记录
-        $count_arr = yield $this->mysql_pool->dbQueryBuilder
-            ->coroutineSend(null,"select count(0) as num from {$this->getTable()} as a {$where}");
+        $count_arr = $this->db->query("select count(0) as num from {$this->getTable()} as a {$where}");
         $count = $count_arr['result'][0]['num'];
         if($count>$end){
             $r['num'] =$count;
@@ -231,13 +182,9 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
-    public function deleteById(int $id,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->coroutineSend($transaction_id);
+    public function deleteById(int $id){
+        $r = $this->db->from($this->prefix.$this->table)
+            ->where('id',$id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -246,25 +193,18 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 插入多条数据
-     * @param array $intoColumns
-     * @param array $intoValues
-     * @param null $transaction_id
-     * @return bool
-     */
-    public function insertMultiple( array $intoColumns,array $intoValues ,$transaction_id=null){
+    public function insertMultiple( array $intoColumns,array $intoValues ){
         //原生sql执行
 //        $sql = 'INSERT INTO '.$this->prefix.$this->table.'(role_id,m,c,a,menu_id) VALUES';
 //        foreach ($arr as $key=>$value){
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null, $sql);
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+//        $r = $this->db->coroutineSend(null, $sql);
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -273,18 +213,11 @@ class ImGroupFriendModel extends BaseModel
         }
     }
 
-    /**
-     * 根据ID更新单条
-     * @param int $id
-     * @param array $columns_values
-     * @param null $transaction_id
-     * @return bool
-     */
-    public function updateById(int $id,array $columns_values,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->update($this->prefix.$this->table)
+    public function updateById(int $id,array $columns_values){
+        $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;

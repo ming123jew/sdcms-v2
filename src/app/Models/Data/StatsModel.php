@@ -21,7 +21,8 @@ class StatsModel extends BaseModel
     /**
      * @param $date
      * @param string $type
-     * @return bool|string
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp|string
+     * @throws \Throwable
      */
     public function updateOrInsert( $date, $type='click'){
         $return = "";
@@ -31,18 +32,18 @@ class StatsModel extends BaseModel
             $set = $type.'_num';
         }
         //查询是否有当天数据
-        $result =  yield $this->mysql_pool->dbQueryBuilder->select('*')
+        $result =  $this->db->select('*')
             ->from($this->prefix.$this->table)
             ->where('date',$date)
             ->limit(1)
-            ->coroutineSend();
+            ->query();
 
         if(empty($result['result'])){
 
-            $result = yield $this->mysql_pool->dbQueryBuilder->insert($this->prefix.$this->table)
+            $result = $this->db->insert($this->prefix.$this->table)
                 ->set($set,1)
                 ->set('date',$date)
-                ->coroutineSend();
+                ->query();
             //返回退出
             $return = $result;
 
@@ -50,15 +51,15 @@ class StatsModel extends BaseModel
             //更新操作，先加入到队列  等待任务执行
             //查找是否有缓存
 
-            $redis = $this->redis_pool->getCoroutine();
+            $redis = $this->redis;
             $redis_key = 'RedisStatsModel_'.$date.':'.$set; //key
-            //yield $redis->watch($redis_key);
-            //yield $redis->multi(1);
-            $redis_value = yield $redis->incr($redis_key);
-            //$redis_value = yield $redis->exec();
+            //$redis->watch($redis_key);
+            //$redis->multi(1);
+            $redis_value = $redis->incr($redis_key);
+            //$redis_value = $redis->exec();
             if(!$redis_value){
-                $redis_value = yield $redis->set($redis_key,1);
-               //$redis_value = yield $redis->exec();
+                $redis_value = $redis->set($redis_key,1);
+               //$redis_value = $redis->exec();
             }
             //print_r($redis_value);
             foreach ($result['result'][0] as $key=>$value){
@@ -95,10 +96,10 @@ class StatsModel extends BaseModel
         }else{
             $set = $type.'_num';
         }
-        $redis = $this->redis_pool->getCoroutine();
+        $redis = $this->redis;
         $redis_key = 'RedisStatsModel_'.$date.':'.$set; //key
-        //yield $redis->del($redis_key);
-        $redis_result = yield $redis->lpush($redis_key,"1");//从尾部添加
+        //$redis->del($redis_key);
+        $redis_result = $redis->lpush($redis_key,"1");//从尾部添加
             //return $val;
         if(!$redis_result){
                 //返回退出
@@ -112,15 +113,17 @@ class StatsModel extends BaseModel
     }
 
     /**
-     * @desc  更新点击
+     * 更新点击
      * @param $date
      * @param $type
+     * @param $num
      * @return bool|string
+     * @throws \Throwable
      */
     public function updateNum($date,$type,$num){
         $result = '';
         $sql = 'update '.$this->prefix.$this->table.' set '.$type.'='.$type.'+'.$num.' where date="'.$date.'"';
-        $result = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null,$sql);
+        $result = $this->db->query($sql);
         if(!$result){
             $result = false;
         }else{

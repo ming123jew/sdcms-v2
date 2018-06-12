@@ -25,13 +25,14 @@ class TagsModel extends BaseModel
 
     /**
      * 获取所有菜单
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getAll(){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('content_id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -40,14 +41,16 @@ class TagsModel extends BaseModel
     }
 
     /**
-     * @param int $role_id
-     * @return bool
+     * @param int $content_id
+     * @param string $fields
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getById(int $content_id,$fields='*'){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('content_id',$content_id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -56,12 +59,13 @@ class TagsModel extends BaseModel
     }
 
     /**
-     * @param $id
-     * @return bool
+     * @param int $content_id
+     * @return bool|mixed
+     * @throws \Throwable
      */
-    public function deleteByContentId(int $content_id,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
-            ->where('content_id',$content_id)->delete()->coroutineSend($transaction_id);
+    public function deleteByContentId(int $content_id){
+        $r = $this->db->from($this->prefix.$this->table)
+            ->where('content_id',$content_id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -74,21 +78,21 @@ class TagsModel extends BaseModel
      * 插入多条数据
      * @param array $intoColumns
      * @param array $intoValues
-     * @param null $transaction_id
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
-    public function insertMultiple( array $intoColumns,array $intoValues ,$transaction_id=null){
+    public function insertMultiple( array $intoColumns,array $intoValues ){
         //原生sql执行
 //        $sql = 'INSERT INTO '.$this->prefix.$this->table.'(role_id,m,c,a,menu_id) VALUES';
 //        foreach ($arr as $key=>$value){
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null, $sql);
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+//        $r = $this->db->coroutineSend(null, $sql);
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;

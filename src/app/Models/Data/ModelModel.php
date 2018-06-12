@@ -23,13 +23,14 @@ class ModelModel extends BaseModel
 
     /**
      * 获取所有数据
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getAll(){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -38,14 +39,16 @@ class ModelModel extends BaseModel
     }
 
     /**
-     * @param int $role_id
+     * @param int $id
+     * @param string $fields
      * @return bool
+     * @throws \Throwable
      */
     public function getById(int $id,$fields='*'){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -54,12 +57,13 @@ class ModelModel extends BaseModel
     }
 
     /**
-     * @param $id
-     * @return bool
+     * @param int $id
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function deleteById(int $id){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->coroutineSend();
+        $r = $this->db->from($this->prefix.$this->table)
+            ->where('id',$id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -70,21 +74,23 @@ class ModelModel extends BaseModel
 
     /**
      * 插入多条数据
-     * @param array $arr
-     * @return bool
+     * @param array $intoColumns
+     * @param array $intoValues
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp
+     * @throws \Throwable
      */
-    public function insertMultiple( array $intoColumns,array $intoValues ,$transaction_id=null){
+    public function insertMultiple( array $intoColumns,array $intoValues ){
         //原生sql执行
 //        $sql = 'INSERT INTO '.$this->prefix.$this->table.'(role_id,m,c,a,menu_id) VALUES';
 //        foreach ($arr as $key=>$value){
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null, $sql);
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+//        $r = $this->db->coroutineSend(null, $sql);
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -95,15 +101,16 @@ class ModelModel extends BaseModel
 
     /**
      * 根据ID更新单条
-     * @param array $intoColumns
-     * @param array $intoValues
-     * @return bool
+     * @param int $id
+     * @param array $columns_values
+     * @return bool|mixed
+     * @throws \Throwable
      */
-    public function updateById(int $id,array $columns_values,$transaction_id=null){
-        $r = yield $this->mysql_pool->dbQueryBuilder->update($this->prefix.$this->table)
+    public function updateById(int $id,array $columns_values){
+        $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->coroutineSend($transaction_id);
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;

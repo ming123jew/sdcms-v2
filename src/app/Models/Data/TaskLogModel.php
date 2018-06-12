@@ -20,16 +20,16 @@ class TaskLogModel extends BaseModel
     private $table = 'task_log';
 
     /**
-     * @param array $data
-     * @return bool|\Server\Asyn\Mysql\Miner|string
+     * @param $data
+     * @return bool|\Server\Asyn\Mysql\MysqlSyncHelp|string
+     * @throws \Throwable
      */
     public function addTaskLog($data)
     {
         $return = '';
-        $res = yield $this->mysql_pool->dbQueryBuilder
-            ->insert($this->prefix.$this->table)
+        $res = $this->db->insert($this->prefix.$this->table)
             ->set('content',serialize($data))
-            ->coroutineSend();
+            ->query();
         if(empty($res['result'])){
             $return = false;
         }else{

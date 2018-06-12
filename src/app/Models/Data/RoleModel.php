@@ -21,16 +21,18 @@ class RoleModel extends BaseModel
     public function getTable(){
         return $this->prefix.$this->table;
     }
+
     /**
      * 获取所有
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function getAll(){
-        $val = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $val = $this->db->from($this->prefix.$this->table)
             ->orderBy('list_order','asc')
             ->orderBy('id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($val['result'])){
             return false;
         }else{
@@ -44,12 +46,13 @@ class RoleModel extends BaseModel
      * @param int $id
      * @param string $fields
      * @return bool
+     * @throws \Throwable
      */
     public function getOneById(int $id,$fields='*'){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -62,14 +65,15 @@ class RoleModel extends BaseModel
      * 批量插入
      * @param array $intoColumns
      * @param array $intoValues
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function insertMultiple( array $intoColumns,array $intoValues ){
 
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+        $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend();
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -80,15 +84,16 @@ class RoleModel extends BaseModel
 
     /**
      * 根据ID更新单条
-     * @param array $intoColumns
-     * @param array $intoValues
-     * @return bool
+     * @param int $id
+     * @param array $columns_values
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function updateById(int $id,array $columns_values){
-        $r = yield $this->mysql_pool->dbQueryBuilder->update($this->prefix.$this->table)
+        $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->coroutineSend();
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -99,13 +104,14 @@ class RoleModel extends BaseModel
 
     /**
      * @param array $values
-     * @return bool
+     * @return bool|mixed
+     * @throws \Throwable
      */
     public function delete(array $values){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = $this->db->from($this->prefix.$this->table)
             ->whereIn('id',$values)
             ->delete()
-            ->coroutineSend();
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;

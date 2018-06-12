@@ -21,7 +21,7 @@ class Activity extends Base{
         $this->Data['uid'] = $this->http_input->getPost('uid');
 
         //获取redis同时链接
-        $this->Data['activeCount'] =  yield $this->redis_pool->getRedisPool()->getClientCount();
+        $this->Data['activeCount'] =  $this->redis_pool->getRedisPool()->getClientCount();
 
         if($this->Data['activeCount']>10){
             $this->Data['message'] = '服务器开小差.';
@@ -29,14 +29,14 @@ class Activity extends Base{
             $this->Data['uid'] = $this->http_input->getPost('uid');
             $this->Data['execute_data'] = ['name'=>'llen', 'saleinfo-go'];
             //秒人人数限制
-            $saleCount = intval( yield $this->redis_pool->getCoroutine()->lLen('ms-queue') );
+            $saleCount = intval( $this->redis->lLen('ms-queue') );
             //小于10个则有机会
             if ($saleCount < 10) {
                 //用户锁，有效时间为3600秒，预计3600秒抢完，防止重复，当然可以使用其他方法代替，记录日志
-                $this->Data['userlocks'] = yield $this->redis_pool->getCoroutine()->set('userlock-'.$this->Data['uid'],$this->Data['uid'],'NX','EX',3600);
+                $this->Data['userlocks'] = $this->redis->set('userlock-'.$this->Data['uid'],$this->Data['uid'],'NX','EX',3600);
                 if($this->Data['userlocks']){
                     //压入中奖队列
-                    yield $this->redis_pool->getCoroutine()->rpush('ms-queue',$this->Data['uid']);
+                    $this->redis->rpush('ms-queue',$this->Data['uid']);
                     print_r("\nyes\n");
                 }else{
                     print_r("\nno\n");
@@ -46,7 +46,7 @@ class Activity extends Base{
                 $this->Data['message'] = '秒杀结束';
             }
 
-            $this->Data['users'] = yield $this->redis_pool->getCoroutine()->lRange('ms-queue',0,10);
+            $this->Data['users'] = $this->redis->lRange('ms-queue',0,10);
             foreach ( $this->Data['users'] as $key=>$value){
                 if($value == $this->Data['uid']){
                     $this->Data['message'] = $this->Data['uid'].'成功秒杀.';
@@ -54,17 +54,17 @@ class Activity extends Base{
             }
 
             //查看所有用户锁
-            $this->Data['userlocks'] = yield $this->redis_pool->getCoroutine()->keys('userlock*');
+            $this->Data['userlocks'] = $this->redis->keys('userlock*');
 
         }
         $this->http_output->end($this->Data);
     }
 
     public function http_clear(){
-        yield $this->redis_pool->getCoroutine()->del('ms-queue');
-        $this->Data['userlocks'] = yield $this->redis_pool->getCoroutine()->keys('userlock*');
+        $this->redis->del('ms-queue');
+        $this->Data['userlocks'] = $this->redis->keys('userlock*');
         foreach ($this->Data['userlocks'] as $key=>$value){
-            yield $this->redis_pool->getCoroutine()->del($value);
+            $this->redis->del($value);
         }
 
         $this->Data['message'] = 'clear all.';
@@ -74,7 +74,7 @@ class Activity extends Base{
     public function http_test(){
 
 
-       yield lock("redis",function (){
+       lock("redis",function (){
             //echo "get lock...";
             $this->http_output->end("fuck");
         },function (){

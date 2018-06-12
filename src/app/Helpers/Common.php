@@ -157,9 +157,9 @@ function set_cache($key,$value,$expire=24*3600)
     ];
 
     if(empty($value)||is_null($value)){
-        yield CatCacheRpcProxy::getRpc()->offsetUnset($key);
+        CatCacheRpcProxy::getRpc()->offsetUnset($key);
     }else{
-        yield CatCacheRpcProxy::getRpc()->offsetSet($key,$data);
+        CatCacheRpcProxy::getRpc()->offsetSet($key,$data);
     }
     unset($value,$expire);
 
@@ -173,15 +173,15 @@ function set_cache($key,$value,$expire=24*3600)
  */
 function get_cache($key,$type="data")
 {
-    $result = yield CatCacheRpcProxy::getRpc()->offsetExists($key);
+    $result = CatCacheRpcProxy::getRpc()->offsetExists($key);
     if($result)
     {
-        $result =  yield CatCacheRpcProxy::getRpc()->offsetGet($key);
+        $result = CatCacheRpcProxy::getRpc()->offsetGet($key);
         //判断是否过期
         //print_r($result);
         if(time() - $result['create_time']>$result['expire_time'])
         {
-            yield CatCacheRpcProxy::getRpc()->offsetUnset($key);
+            CatCacheRpcProxy::getRpc()->offsetUnset($key);
             $result = false;
         }
     }else{
@@ -245,7 +245,7 @@ function lock($type="file",$callback,$callback2){
                 echo BIN_DIR.'/lock';
                 //..处理订单
                 call_user_func($callback);
-                yield sleepCoroutine(5000);
+                sleepCoroutine(5000);
                 flock($fp,LOCK_UN);
                 fclose($fp);
                 //print_r("unlock ok.");
@@ -260,7 +260,7 @@ function lock($type="file",$callback,$callback2){
                 //echo "\nprocess  successfully got the mutex \n";
                 call_user_func($callback);
                 //模拟
-                yield sleepCoroutine(5000);
+                sleepCoroutine(5000);
                 $mutex->unlock();
                 //print_r("unlock ok.");
             }else{
@@ -270,12 +270,12 @@ function lock($type="file",$callback,$callback2){
             break;
 
         case 'redis':
-            $lock = yield get_instance()->redis_pool->getCoroutine()->set('lock',1,'NX','EX',3600);
+            $lock = get_instance()->redis_pool->getCoroutine()->set('lock',1,'NX','EX',3600);
             if($lock){
                 call_user_func($callback);
                 //模拟
-                yield sleepCoroutine(5000);
-                yield  get_instance()->redis_pool->getCoroutine()->del('lock');
+                sleepCoroutine(5000);
+                get_instance()->redis_pool->getCoroutine()->del('lock');
                 //print_r("unlock ok.");
             }else{
                 call_user_func($callback2);
@@ -422,15 +422,15 @@ function check_role($m,$c,$a,$context,$param=[])
     $role_id = $login_info['roleid'];
     //cache存在内存泄漏
     //$cache = Cache::getCache('WebCache');
-    //$role_id_priv =  unserialize($cache->getOneMap('__ROLEID__DATA__ADMIN__'.$role_id));
-    //$role_id_priv = yield unserialize(get_cache('__ROLEID__DATA__ADMIN__'.$role_id));
+    //$role_id_priv = unserialize($cache->getOneMap('__ROLEID__DATA__ADMIN__'.$role_id));
+    //$role_id_priv = unserialize(get_cache('__ROLEID__DATA__ADMIN__'.$role_id));
     //var_dump($role_id_priv);
     $role_id_priv = false;
     if(!$role_id_priv)
     {
         //数据库查找
         $model = get_instance()->loader->model(\app\Models\Data\RolePrivModel::class,$context);
-        $r =  yield $model->authRole($role_id,$m,$c,$a);
+        $r = $model->authRole($role_id,$m,$c,$a);
         //print_r('check_role from db \n;');
 
         if(!($r))
@@ -482,7 +482,7 @@ function get_role_byid($roleid,$context,$flag='__CACHE_ROLE__')
             print_r('role from cache.');
         }else{
             $m = get_instance()->loader->model(\app\Models\Data\RoleModel::class,$context);
-            $d = yield $m->getAll();
+            $d = $m->getAll();
             $all_role = $d;
             //存入缓存
             $cache->addMap($flag,serialize($d));
@@ -559,7 +559,7 @@ function get_catname_by_catid(int $catid,$context,$alias='catname')
     if($catid>0)
     {
         //查找缓存
-        $cache_arr = yield get_cache($key);
+        $cache_arr = get_cache($key);
         //var_dump($cache_arr);
         if($cache_arr)
         {
@@ -567,12 +567,12 @@ function get_catname_by_catid(int $catid,$context,$alias='catname')
         }else{
             //数据库查找
             $model = get_instance()->loader->model(\app\Models\Data\CategoryModel::class,$context);
-            $r =  yield $model->getAll();
+            $r = $model->getAll();
             if($r)
             {
                 $cache_arr = $r;
                 //存入缓存
-                yield set_cache($key,$r);
+                set_cache($key,$r);
                 //print_r('catname from db');
             }
         }

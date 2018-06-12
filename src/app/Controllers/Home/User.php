@@ -36,7 +36,7 @@ class User extends Base
             $family->addDecorator(  new Score() );
             //before操作，由于控制器必须使用浏览器访问controllor才能正常调用end()..因此此处使用结果数组进行返回，如结果数组包含错误则直接返回第一个错误。
             $tis='';
-            yield $family->before($this);
+            $family->before($this);
             $result =  ($family->getBeforeResult());
             foreach ($result as $key=>$value){
                 if($value&&$value['status']==0){$tis = $value['message'];}
@@ -49,7 +49,7 @@ class User extends Base
                 //....//print_r("\nmiddle\n");
                 //after操作，由于控制器必须使用浏览器访问controllor才能正常调用http_output->end()..因此此处使用结果数组进行返回，如结果数组包含错误则直接返回第一个错误。
                 $tis='';
-                yield $family->after($this);
+                $family->after($this);
                 $result =  ($family->getAfterResult());
                 foreach ($result as $key=>$value){
                     if($value&&$value['status']==0){$tis = $value['message'];}
@@ -64,8 +64,8 @@ class User extends Base
             }
         }else{
             parent::webOrApp(function (){//web or app
-                $template = $this->loader->view('app::Home/login');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Home/login',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
 
@@ -81,7 +81,7 @@ class User extends Base
             $family->addDecorator(  new Register() );
             //注册成功前
             $tis='';
-            yield $family->before($this);
+            $family->before($this);
             $result =  ($family->getBeforeResult());
             foreach ($result as $key=>$value){
                 if($value&&$value['status']==0){$tis = $value['message'];}
@@ -92,7 +92,7 @@ class User extends Base
             }else{
                 //注册成功后
                 $tis='';
-                yield $family->after($this);
+                $family->after($this);
                 $result =  ($family->getAfterResult());
                 foreach ($result as $key=>$value){
                     if($value&&$value['status']==0){$tis = $value['message'];}
@@ -107,8 +107,8 @@ class User extends Base
             }
         }else{
             parent::webOrApp(function (){//web or app
-                $template = $this->loader->view('app::Home/register');
-                $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+                $template = $this->loader->view('app::Home/register',['data'=>$this->TemplateData,'message'=>'']);
+                $this->http_output->end($template);
             });
         }
     }
@@ -123,8 +123,8 @@ class User extends Base
         parent::templateData('message','成功退出登录.');
         parent::templateData('gourl',$this->Host);
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Home/logout');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Home/logout',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
         // 清除缓存数据
     }
@@ -153,7 +153,7 @@ class Check implements IUserService {
         }else{
             //进行验证
             $this->UserModel = $context->loader->model(UserModel::class,$context);
-            $result = yield $this->UserModel->getOneUserByUsernameAndPassword($username,$password);
+            $result = $this->UserModel->getOneUserByUsernameAndPassword($username,$password);
             if($result){
                 unset($result['password']);
                 $result = array_merge($result,['status'=>1,'message'=>'验证成功.']);
@@ -227,11 +227,11 @@ class Register implements IUserService{
             $data['username'] = $username;
             $data['password'] = $password;
             $data['email'] = $email;
-            $had = yield $this->UserModel->isExistUser($username);
+            $had = $this->UserModel->isExistUser($username);
             if($had){
                 $result = ['status'=>0,'message'=>'用户已存在.'];
             }else{
-                $result = yield $this->UserModel->addUser($data);
+                $result = $this->UserModel->addUser($data);
                 $result = array_merge($result,['status'=>1,'message'=>'注册成功.']);
                 print_r($result);
             }
@@ -302,7 +302,7 @@ class IUserServiceFamily implements IUserService{
     {
         // TODO: Implement before() method.
         foreach ($this->decorator as $decorator) {
-            $this->before_result[] = yield $decorator->before($context);
+            $this->before_result[] = $decorator->before($context);
         }
     }
 
@@ -315,7 +315,7 @@ class IUserServiceFamily implements IUserService{
     {
         // TODO: Implement after() method.
         foreach ($this->decorator as $decorator) {
-            $this->after_result[] = yield $decorator->after($context);
+            $this->after_result[] = $decorator->after($context);
         }
 
     }

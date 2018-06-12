@@ -26,12 +26,13 @@ class RolePrivModel extends BaseModel
     /**
      * 获取所有菜单
      * @return bool
+     * @throws \Throwable
      */
     public function getAll(){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = yield $this->db->from($this->prefix.$this->table)
             ->orderBy('role_id','asc')
             ->select('*')
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -41,13 +42,15 @@ class RolePrivModel extends BaseModel
 
     /**
      * @param int $role_id
+     * @param string $fields
      * @return bool
+     * @throws \Throwable
      */
     public function getByRoleId(int $role_id,$fields='*'){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = yield $this->db->from($this->prefix.$this->table)
             ->where('role_id',$role_id)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{
@@ -56,12 +59,13 @@ class RolePrivModel extends BaseModel
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return bool
+     * @throws \Throwable
      */
     public function deleteByRoleId(int $id){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
-            ->where('role_id',$id)->delete()->coroutineSend();
+        $r = yield $this->db->from($this->prefix.$this->table)
+            ->where('role_id',$id)->delete()->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -82,11 +86,11 @@ class RolePrivModel extends BaseModel
 //            $sql .= '("'.$value[0].'","'.$value[1].'","'.$value[2].'","'.$value[3].'","'.$value[4].'"),';
 //        }
 //        $sql = substr($sql,0,-1);
-//        $r = yield $this->mysql_pool->dbQueryBuilder->coroutineSend(null, $sql);
-        $r = yield $this->mysql_pool->dbQueryBuilder->insertInto($this->prefix.$this->table)
+//        $r = yield $this->db->coroutineSend(null, $sql);
+        $r = yield $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->coroutineSend();
+            ->query();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -104,15 +108,16 @@ class RolePrivModel extends BaseModel
      * @param string $a
      * @param string $fields
      * @return bool
+     * @throws \Throwable
      */
     public function authRole(int $role_id,string $m,string $c,string $a,string $fields='*'){
-        $r = yield $this->mysql_pool->dbQueryBuilder->from($this->prefix.$this->table)
+        $r = yield $this->db->from($this->prefix.$this->table)
             ->where('role_id',$role_id)
             ->where('m',$m)
             ->where('c',$c)
             ->where('a',$a)
             ->select($fields)
-            ->coroutineSend();
+            ->query();
         if(empty($r['result'])){
             return false;
         }else{

@@ -93,7 +93,7 @@ class Status extends BaseController{
             },8192,$file_size);
         });
         EventDispatcher::getInstance()->removeAll('unlock'.$this->fd);
-        $message = yield EventDispatcher::getInstance()
+        $message = EventDispatcher::getInstance()
             ->addOnceCoroutine('unlock'.$this->fd)
             ->setTimeout(99999999)
             ->noException('timeout.');
@@ -241,7 +241,7 @@ class Status extends BaseController{
          \swoole_async_read($log_file, function ($f,$c){
              EventDispatcher::getInstance()->dispatch('unlock', $c);
          },8192,$file_size);
-        $data = yield EventDispatcher::getInstance()->addOnceCoroutine('unlock')->setTimeout(1000);
+        $data = EventDispatcher::getInstance()->addOnceCoroutine('unlock')->setTimeout(1000);
         $this->http_output->end($data);
 
     }
@@ -253,7 +253,7 @@ class Status extends BaseController{
 
     public function http_tail3(){
 
-        $this->http_output->end(yield get_cache('aaa'));
+        $this->http_output->end(get_cache('aaa'));
     }
 
 
@@ -294,8 +294,8 @@ class Status extends BaseController{
 
         file_put_contents( '/home/a.txt', $this->pack("6578616d706c65206865782064617461"));
 
-        $data = yield ProcessManager::getInstance()->getRpcCall(MyProcess::class)->getData();
-        $result = yield ProcessManager::getInstance()->getRpcCallWorker(0)->getPoolStatus();
+        $data = ProcessManager::getInstance()->getRpcCall(MyProcess::class)->getData();
+        $result = ProcessManager::getInstance()->getRpcCallWorker(0)->getPoolStatus();
         print_r(get_instance()->getWorkerId());
         //var_dump($result);
         $this->http_output->end($data);

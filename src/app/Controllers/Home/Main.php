@@ -47,19 +47,19 @@ class Main extends Base
 
         $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
         //[获取幻灯:start]
-        $d_slide = yield $this->Model['HomeBusiness']->get_slide();
+        $d_slide =  $this->Model['HomeBusiness']->get_slide();
         //[获取幻灯:end]
 
         //[获取推荐:start]
-        $d_get_recommend = yield $this->Model['HomeBusiness']->get_recommend();
+        $d_get_recommend =  $this->Model['HomeBusiness']->get_recommend();
         //[获取推荐:end]
 
         //[获取最新文章:start]
-        $d_get_new = yield $this->Model['HomeBusiness']->get_new(0,$start,$end);
+        $d_get_new =  $this->Model['HomeBusiness']->get_new(0,$start,$end);
         //[获取最新文章:end]
 
         //[获取最新评论:start]
-        $d_get_new_comment = yield $this->Model['HomeBusiness']->get_new_comment();
+        $d_get_new_comment =  $this->Model['HomeBusiness']->get_new_comment();
         //[获取最新评论:end]
 
         //print_r($d_get_new);
@@ -74,15 +74,15 @@ class Main extends Base
         unset($p,$end,$start,$d_slide,$d_get_recommend,$d_get_new,$d_get_new_comment,$date);
         //web or app
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Home/index');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Home/index',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
     }
 
     public function http_about(){
         $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
-        $this->Data['d_get_recommend']  = yield $this->Model['HomeBusiness']->get_recommend();
-        $this->Data['d_get_new_comment']  = yield $this->Model['HomeBusiness']->get_new_comment();
+        $this->Data['d_get_recommend']  =  $this->Model['HomeBusiness']->get_recommend();
+        $this->Data['d_get_new_comment']  =  $this->Model['HomeBusiness']->get_new_comment();
         parent::templateData('d_get_recommend',$this->Data['d_get_recommend']);
         parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']);
         $this->Data['date'] = date('Y-m-d');
@@ -90,15 +90,15 @@ class Main extends Base
         parent::templateData('date',$this->Data['date'].' '. $this->Data['week']);
         //web or app
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Home/about');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Home/about',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
     }
 
     public function http_link(){
         $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
-        $this->Data['d_get_recommend']  = yield $this->Model['HomeBusiness']->get_recommend();
-        $this->Data['d_get_new_comment']  = yield $this->Model['HomeBusiness']->get_new_comment();
+        $this->Data['d_get_recommend']  =  $this->Model['HomeBusiness']->get_recommend();
+        $this->Data['d_get_new_comment']  =  $this->Model['HomeBusiness']->get_new_comment();
         parent::templateData('d_get_recommend',$this->Data['d_get_recommend']);
         parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']);
         $this->Data['date'] = date('Y-m-d');
@@ -106,8 +106,8 @@ class Main extends Base
         parent::templateData('date',$this->Data['date'].' '. $this->Data['week']);
         //web or app
         parent::webOrApp(function (){
-            $template = $this->loader->view('app::Home/link');
-            $this->http_output->end($template->render(['data'=>$this->TemplateData,'message'=>'']));
+            $template = $this->loader->view('app::Home/link',['data'=>$this->TemplateData,'message'=>'']);
+            $this->http_output->end($template);
         });
     }
 
@@ -121,13 +121,13 @@ class Main extends Base
     }
 
     public function http_redis_set(){
-        $r = yield $this->redis_pool->getCoroutine()->set('aa','aa');
+        $r =  $this->redis_pool->getCoroutine()->set('aa','aa');
         print_r($r);
         $this->http_output->end($r);
     }
 
     public function http_redis_get(){
-        $r = yield $this->redis_pool->getCoroutine()->get('aa');
+        $r =  $this->redis_pool->getCoroutine()->get('aa');
         $this->http_output->end($r);
     }
 
@@ -141,14 +141,14 @@ class Main extends Base
          $redis_result = yield $redisCoroutine;*/
 
         $UserModel = $this->loader->model(UserModel::class,$this);
-        $isExist = yield $UserModel->isExistUser('ming');
+        $isExist =  $UserModel->isExistUser('ming');
 
         $StatsModel = $this->loader->model(StatsModel::class,$this);
         $date = date('Ymd',time());
-        $val = yield $StatsModel->updateOrInsert($date,'click');
+        $val =  $StatsModel->updateOrInsert($date,'click');
 
         $redis_key ='RedisStatsModel_'.$date.':click_num';
-        $click_num = yield $this->redis_pool->getCoroutine()->get($redis_key);
+        $click_num =  $this->redis_pool->getCoroutine()->get($redis_key);
 
         $endData = [
             // 'reis_result'=>$redis_result,
@@ -178,7 +178,7 @@ class Main extends Base
      * 协程模式
      */
     public function http_smysql(){
-        $result = yield $this->mysql_pool->dbQueryBuilder->select('*')->from('user')->limit(10)->coroutineSend();
+        $result =  $this->mysql_pool->dbQueryBuilder->select('*')->from('user')->limit(10)->coroutineSend();
         $this->http_output->end($result,false);
     }
     /**
@@ -210,20 +210,20 @@ class Main extends Base
     public function http_testSC1()
     {
 
-        $result = yield set_cache('test1','ok',10);
+        $result =  set_cache('test1','ok',10);
         $this->http_output->end($result, false);
     }
 
     public function http_testSC2()
     {
 
-        $result = yield get_cache('test1');
+        $result =  get_cache('test1');
         $this->http_output->end($result, false);
     }
 
     public function http_testSC5()
     {
-        $result = yield CatCacheRpcProxy::getRpc()->getAll();
+        $result =  CatCacheRpcProxy::getRpc()->getAll();
         $this->http_output->end($result, false);
     }
 

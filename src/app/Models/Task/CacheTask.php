@@ -23,7 +23,7 @@ class CacheTask extends BaseModel
     public function check(){
 
         //访问MyProcess进程getData方法
-        $data = yield  ProcessManager::getInstance()->getRpcCall(MyProcess::class)->getData();
+        $data =  ProcessManager::getInstance()->getRpcCall(MyProcess::class)->getData();
         print_r($data);
         return "ticker";
     }
