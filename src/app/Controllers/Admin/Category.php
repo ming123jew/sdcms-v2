@@ -71,7 +71,7 @@ class Category extends Base
             //print_r(array_values($data['info']));
             $this->Model['CategoryModel'] =  $this->loader->model(CategoryModel::class,$this);
             $this->Data['CategoryModel'] = $this->Model['CategoryModel']->insertMultiple(array_keys($this->Data['info']),array_values($this->Data['info']));
-            if(!$this->Data['CategoryModel'])
+            if(!$this->Data['CategoryModel']['result'])
             {
                 parent::httpOutputTis('CategoryModel添加请求失败.');
             }else{
@@ -111,7 +111,7 @@ class Category extends Base
             $oldcatid = intval($this->Data['info']['oldcatid']);
             unset($this->Data['info']['oldcatid']);
             $this->Data['CategoryModel'] = $this->Model['CategoryModel']->updateById($id,$this->Data['info']);
-            if(!$this->Data['CategoryModel'])
+            if(!$this->Data['CategoryModel']['result'])
             {
                 unset($id,$oldcatid);
                 parent::httpOutputTis('CategoryModel更新请求失败.');
@@ -123,18 +123,18 @@ class Category extends Base
             $id = intval($this->http_input->postGet('id'));
             $this->Model['CategoryModel'] = $this->loader->model(CategoryModel::class,$this);
             $this->Data['CategoryModel'] = $this->Model['CategoryModel']->getById($id);
-            if($id&&$this->Data['CategoryModel'])
+            if($id&&$this->Data['CategoryModel']['result'])
             {
                 //获取模型
                 $this->ModelBusiness =  $this->loader->model(ModelBusiness::class,$this);
-                $selectModel=  $this->ModelBusiness->get_all_by_parent_id(intval($this->Data['CategoryModel']['model_id']));
+                $selectModel=  $this->ModelBusiness->get_all_by_parent_id(intval($this->Data['CategoryModel']['result']['model_id']));
                 //获取分类
                 $this->Model['CategoryBusiness'] =  $this->loader->model(CategoryBusiness::class,$this);
-                $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($this->Data['CategoryModel']['parent_id']));
+                $selectCategorys=  $this->Model['CategoryBusiness']->get_category_by_parentid(intval($this->Data['CategoryModel']['result']['parent_id']));
                 parent::templateData('selectModel',$selectModel);
                 parent::templateData('selectCategorys',$selectCategorys);
-                parent::templateData('d_category_model',$this->Data['CategoryModel']);
-                parent::templateData('d_category_model_setting',json_decode($this->Data['CategoryModel']['setting'],true));
+                parent::templateData('d_category_model',$this->Data['CategoryModel']['result']);
+                parent::templateData('d_category_model_setting',json_decode($this->Data['CategoryModel']['result']['setting'],true));
                 //web or app
                 unset($id,$selectModel,$selectCategorys);
                 parent::webOrApp(function (){

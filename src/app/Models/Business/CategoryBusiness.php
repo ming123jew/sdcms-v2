@@ -20,7 +20,8 @@ class CategoryBusiness extends BaseBusiness
     public function get_category_by_parentid(int $parent_id)
     {
         $this->CategoryModel =  $this->loader->model(CategoryModel::class,$this);
-        $all = $this->CategoryModel->getAll();
+        $alls = $this->CategoryModel->getAll();
+        $all = $alls['result'];
         $info='';
         if($all)
         {
@@ -44,7 +45,8 @@ class CategoryBusiness extends BaseBusiness
     public function get_category_for_category_list($context)
     {
         $this->CategoryModel =  $this->loader->model(CategoryModel::class,$this);
-        $all = $this->CategoryModel->getAll();
+        $alls = $this->CategoryModel->getAll();
+        $all = $alls['result'];
         $all_menu = '';
         if($all)
         {

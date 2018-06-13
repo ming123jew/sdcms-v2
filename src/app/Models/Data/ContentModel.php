@@ -34,7 +34,7 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r ;
         }
     }
 
@@ -85,7 +85,8 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'][0];
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -106,7 +107,8 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'][0];
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -134,7 +136,7 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'];
+            return $r;
         }
     }
 
@@ -165,7 +167,7 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'];
+            return $r;
         }
     }
 
@@ -231,7 +233,7 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r ;
         }
     }
 
@@ -278,7 +280,7 @@ class ContentModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r ;
         }
     }
 

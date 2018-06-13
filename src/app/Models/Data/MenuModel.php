@@ -43,7 +43,7 @@ class MenuModel extends BaseModel
         if(empty($val['result'])){
             return false;
         }else{
-            return $val['result'];
+            return $val;
         }
     }
 
@@ -63,7 +63,8 @@ class MenuModel extends BaseModel
             return false;
         }else{
             //返回一条
-            return $r['result'][0] ;
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -84,7 +85,7 @@ class MenuModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -104,7 +105,7 @@ class MenuModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -122,7 +123,7 @@ class MenuModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 

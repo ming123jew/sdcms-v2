@@ -36,7 +36,7 @@ class TagsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -46,7 +46,7 @@ class TagsModel extends BaseModel
      * @return bool|mixed
      * @throws \Throwable
      */
-    public function getById(int $content_id,$fields='*'){
+    public function getByContentId(int $content_id,$fields='*'){
         $r = $this->db->from($this->prefix.$this->table)
             ->where('content_id',$content_id)
             ->select($fields)
@@ -54,7 +54,7 @@ class TagsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -70,7 +70,7 @@ class TagsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -97,7 +97,7 @@ class TagsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 

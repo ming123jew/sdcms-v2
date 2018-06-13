@@ -27,7 +27,6 @@ class Article extends Base
     {
         $id = intval( $this->http_input->postGet('id') );
         if($id>0){
-
             $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
             //[读取内容+点击+更新点击:start]
             $d = $this->Model['HomeBusiness']->get_article($id);
@@ -48,8 +47,8 @@ class Article extends Base
             parent::templateData('article',$d);
             //print_r($d);
 
-            parent::templateData('d_get_recommend',$d_get_recommend);
-            parent::templateData('d_get_new_comment',$d_get_new_comment);
+            parent::templateData('d_get_recommend',$d_get_recommend['result']);
+            parent::templateData('d_get_new_comment',$d_get_new_comment['result']);
             $date = date('Y-m-d');
             parent::templateData('date',$date.' '.get_week($date));
 
@@ -94,8 +93,8 @@ class Article extends Base
             parent::templateData('category',$category);
             parent::templateData('d_get_new',$d_get_new['result']);
             parent::templateData('page_d_get_new',page_bar($d_get_new['num'],$p,10,5,$this));
-            parent::templateData('d_get_recommend',$d_get_recommend);
-            parent::templateData('d_get_new_comment',$d_get_new_comment);
+            parent::templateData('d_get_recommend',$d_get_recommend['result']);
+            parent::templateData('d_get_new_comment',$d_get_new_comment['result']);
 
             $date = date('Y-m-d');
             parent::templateData('date',$date.' '.get_week($date));

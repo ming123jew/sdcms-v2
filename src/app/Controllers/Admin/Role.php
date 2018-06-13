@@ -40,12 +40,12 @@ class Role  extends Base{
             $this->Modell['RoleModel'] = $this->loader->model(RoleModel::class,$this);
             $this->Data['RoleModel'] = $this->Modell['RoleModel']->getAll();
             //增加管理操作
-            foreach ($this->Data['RoleModel'] as $key=>$value){
-                $this->Data['RoleModel'][$key]['str_manage'] = (check_role('Admin','Role','role_setting',$this)) ?'<a href="'.url('Admin','Role','role_setting',["id" => $value['id']]).'">权限设置</a> |':'';
-                $this->Data['RoleModel'][$key]['str_manage'] .= (check_role('Admin','Role','role_edit',$this)) ?'<a href="'.url('Admin','Role','role_edit',["id" => $value['id']]).'">编辑</a> |':'';
-                $this->Data['RoleModel'][$key]['str_manage'] .= (check_role('Admin','Role','role_delete',$this)) ?'<a  onclick="role_delete('.$value['id'].')" href="javascript:;">删除</a>':'';
+            foreach ($this->Data['RoleModel']['result'] as $key=>$value){
+                $this->Data['RoleModel']['result'][$key]['str_manage'] = (check_role('Admin','Role','role_setting',$this)) ?'<a href="'.url('Admin','Role','role_setting',["id" => $value['id']]).'">权限设置</a> |':'';
+                $this->Data['RoleModel']['result'][$key]['str_manage'] .= (check_role('Admin','Role','role_edit',$this)) ?'<a href="'.url('Admin','Role','role_edit',["id" => $value['id']]).'">编辑</a> |':'';
+                $this->Data['RoleModel']['result'][$key]['str_manage'] .= (check_role('Admin','Role','role_delete',$this)) ?'<a  onclick="role_delete('.$value['id'].')" href="javascript:;">删除</a>':'';
             }
-            parent::templateData('allrole',$this->Data['RoleModel']);
+            parent::templateData('allrole',$this->Data['RoleModel']['result']);
             //web or app
             parent::webOrApp(function (){
                 $template = $this->loader->view('app::Admin/role_lists',['data'=>$this->TemplateData,'message'=>'']);
@@ -60,13 +60,13 @@ class Role  extends Base{
     public function http_role_add(){
         if($this->http_input->getRequestMethod()=='POST'){
             $this->Modell['RoleModel'] =  $this->loader->model(RoleModel::class,$this);
-            $data = $this->http_input->post('info');
-            unset($data['id']);
-            $this->Data['RoleModel'] = $this->Modell['RoleModel']->insertMultiple(array_keys($data),array_values($data));
-            if(!$this->Data['RoleModel'] ){
+            $this->Data['post'] = $this->http_input->post('info');
+            unset($this->Data['post']['id']);
+            $this->Data['RoleModel'] = $this->Modell['RoleModel']->insertMultiple(array_keys($this->Data['post']),array_values($this->Data['post']));
+            if(!$this->Data['RoleModel']['result'] ){
                 parent::httpOutputTis('RoleModel添加请求失败.');
             }else{
-                parent::httpOutputEnd('角色添加成功.','角色添加失败.',$this->Data['RoleModel'] );
+                parent::httpOutputEnd('角色添加成功.','角色添加失败.',$this->Data['RoleModel']['result'] );
             }
         }else{
 
@@ -83,22 +83,22 @@ class Role  extends Base{
      */
     public function http_role_edit(){
         if($this->http_input->getRequestMethod()=='POST'){
-            $data = $this->http_input->post('info');
-            $id = $data['id'];
-            unset($data['id']);
+            $this->Data['post'] = $this->http_input->post('info');
+            $id = $this->Data['post']['id'];
+            unset($this->Data['post']['id']);
             $this->Modell['RoleModel'] =  $this->loader->model(RoleModel::class,$this);
-            $this->Data['RoleModel'] = $this->Modell['RoleModel']->updateById($id,$data);
+            $this->Data['RoleModel'] = $this->Modell['RoleModel']->updateById($id,$this->Data['post']);
             unset($data);
-            if(!$this->Data['RoleModel']){
+            if(!$this->Data['RoleModel']['result']){
                 parent::httpOutputTis('RoleModel编辑请求失败.');
             }else{
-                parent::httpOutputEnd('权限更新成功.','权限更新失败.',$this->Data['RoleModel']);
+                parent::httpOutputEnd('权限更新成功.','权限更新失败.',$this->Data['RoleModel']['result']);
             }
         }else{ //web or app
             $id = $this->http_input->get('id');
             $this->Modell['RoleModel'] =  $this->loader->model(RoleModel::class,$this);
             $this->Data['RoleModel'] = $this->Modell['RoleModel']->getOneById($id);
-            if($id && $this->Data['RoleModel']){
+            if($id && $this->Data['RoleModel']['reuslt']){
                 unset($id);
                 parent::templateData('d_role_model',$this->Data['RoleModel']);
                 parent::webOrApp(function (){
@@ -129,7 +129,7 @@ class Role  extends Base{
                 $this->Model['RolePrivModel'] = $this->loader->model(RolePrivModel::class,$this);
                 $this->Data['RolePrivModel'] = $this->Model['RolePrivModel']->deleteByRoleId($role_id);
 
-                if(!$this->Data['RolePrivModel']){
+                if(!$this->Data['RolePrivModel']['result']){
                     parent::httpOutputTis('RoleModel删除请求失败.');
                 }else{
                     if(count($arr_menu_id)){
@@ -139,11 +139,11 @@ class Role  extends Base{
                             $arr_menu_id[$key] =$arr_value;
                         }
                         //插入新的权限数据
-                        $i_rolepriv_model = $this->Model['RolePrivModel']->insertMultiple(['role_id','menu_id','m','c','a'],$arr_menu_id);
-                        if(!$i_rolepriv_model){
+                        $this->Data['RolePrivModel'] = $this->Model['RolePrivModel']->insertMultiple(['role_id','menu_id','m','c','a'],$arr_menu_id);
+                        if(!$this->Data['RolePrivModel']['result']){
                             parent::httpOutputTis('RolePrivModel插入请求失败.');
                         }else{
-                            parent::httpOutputEnd('权限更新成功.','权限更新失败.',$i_rolepriv_model);
+                            parent::httpOutputEnd('权限更新成功.','权限更新失败.',$this->Data['RolePrivModel']['result']);
                         }
                     }else{
                         parent::httpOutputTis('没有选项.');
@@ -167,21 +167,21 @@ class Role  extends Base{
                 $this->Data['RolePrivModel'] = $this->Model['RolePrivModel']->getByRoleId($id,'menu_id');
 
                 $priv_data = [];
-                if($this->Data['RolePrivModel']){
-                    foreach ($this->Data['RolePrivModel'] as $key=>$value){
+                if($this->Data['RolePrivModel']['result']){
+                    foreach ($this->Data['RolePrivModel']['result'] as $key=>$value){
                         $priv_data[] = $value['menu_id'];
                     }
                 }
 
                 $this->Model['Tree']       = new Tree();
-                foreach ($this->Data['MenuModel'] as $n => $t) {
-                    $this->Data['MenuModel'][$n]['checked']  = (in_array($t['id'], $priv_data)) ? ' checked' : '';
-                    $this->Data['MenuModel'][$n]['level']    = $this->Model['Tree']->get_level($t['id'], $this->Data['MenuModel']);
-                    $this->Data['MenuModel'][$n]['width']    = 100-$this->Data['MenuModel'][$n]['level'];
-                    $this->Data['MenuModel'][$n]['disabled'] = [0=>'', 1=>''];
+                foreach ($this->Data['MenuModel']['result'] as $n => $t) {
+                    $this->Data['MenuModel']['result'][$n]['checked']  = (in_array($t['id'], $priv_data)) ? ' checked' : '';
+                    $this->Data['MenuModel']['result'][$n]['level']    = $this->Model['Tree']->get_level($t['id'], $this->Data['MenuModel']['result']);
+                    $this->Data['MenuModel']['result'][$n]['width']    = 100-$this->Data['MenuModel']['result'][$n]['level'];
+                    $this->Data['MenuModel']['result'][$n]['disabled'] = [0=>'', 1=>''];
                 }
 
-                $this->Model['Tree']->init($this->Data['MenuModel']);
+                $this->Model['Tree']->init($this->Data['MenuModel']['result']);
 
                 $this->Model['Tree']->text =[
                     'other' => "<label class='checkbox'>
@@ -251,8 +251,8 @@ class Role  extends Base{
 
             });
 
-            print_r( $this->Data['RolePrivModel']);
-            print_r($this->Data['RoleModel']);
+//            print_r( $this->Data['RolePrivModel']);
+//            print_r($this->Data['RoleModel']);
 
             if($this->Data['RoleModel']['result']){
 
@@ -268,6 +268,9 @@ class Role  extends Base{
     }
 
 
+    /**
+     * @throws \Server\CoreBase\SwooleException
+     */
     public function http_mysql_begin_coroutine_test()
     {
         $result = '';
@@ -275,8 +278,6 @@ class Role  extends Base{
         {
             $this->Model['RolePrivModel'] = $this->loader->model(UserModel::class,$this);
             $this->Data['RolePrivModel'] = $this->db->select("*")->from($this->Model['RolePrivModel']->getTable())->query();
-
-
         });
         var_dump( $this->Data['RolePrivModel']['result']);
         $this->http_output->end( $this->Data['RolePrivModel']['result']);

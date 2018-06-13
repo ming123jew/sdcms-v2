@@ -38,6 +38,9 @@ class Main extends Base
         //$this->Model['BaseModel'] = $this->loader->model(BaseModel::class, $this);
     }
 
+    /**
+     * 首页
+     */
     public function http_index(){
 
         $p = intval( $this->http_input->postGet('p') );
@@ -64,8 +67,8 @@ class Main extends Base
 
         //print_r($d_get_new);
         //print_r($d_get_recommend);
-        parent::templateData('d_slide',$d_slide);
-        parent::templateData('d_get_recommend',$d_get_recommend);
+        parent::templateData('d_slide',$d_slide['result']);
+        parent::templateData('d_get_recommend',$d_get_recommend['result']);
         parent::templateData('d_get_new',$d_get_new['result']);
         parent::templateData('page_d_get_new',page_bar($d_get_new['num'],$p,10,5,$this));
         parent::templateData('d_get_new_comment',$d_get_new_comment);
@@ -79,12 +82,15 @@ class Main extends Base
         });
     }
 
+    /**
+     * 关于我们
+     */
     public function http_about(){
         $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
         $this->Data['d_get_recommend']  =  $this->Model['HomeBusiness']->get_recommend();
         $this->Data['d_get_new_comment']  =  $this->Model['HomeBusiness']->get_new_comment();
-        parent::templateData('d_get_recommend',$this->Data['d_get_recommend']);
-        parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']);
+        parent::templateData('d_get_recommend',$this->Data['d_get_recommend']['result']);
+        parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']['result']);
         $this->Data['date'] = date('Y-m-d');
         $this->Data['week'] = get_week($this->Data['date']);
         parent::templateData('date',$this->Data['date'].' '. $this->Data['week']);
@@ -95,12 +101,15 @@ class Main extends Base
         });
     }
 
+    /**
+     * 友链
+     */
     public function http_link(){
         $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
         $this->Data['d_get_recommend']  =  $this->Model['HomeBusiness']->get_recommend();
         $this->Data['d_get_new_comment']  =  $this->Model['HomeBusiness']->get_new_comment();
-        parent::templateData('d_get_recommend',$this->Data['d_get_recommend']);
-        parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']);
+        parent::templateData('d_get_recommend',$this->Data['d_get_recommend']['result']);
+        parent::templateData('d_get_new_comment',$this->Data['d_get_new_comment']['result']);
         $this->Data['date'] = date('Y-m-d');
         $this->Data['week'] = get_week($this->Data['date']);
         parent::templateData('date',$this->Data['date'].' '. $this->Data['week']);

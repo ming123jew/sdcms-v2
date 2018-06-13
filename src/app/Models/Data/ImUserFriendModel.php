@@ -32,7 +32,7 @@ class ImUserFriendModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -44,7 +44,7 @@ class ImUserFriendModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -81,102 +81,7 @@ class ImUserFriendModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'][0];
-        }
-    }
-
-    public function getArticle(int $id)
-    {
-        $m = $this->loader->model(ContentHitsModel::class,$this);
-        $r = $this->db->from($this->prefix.$this->table,'a')
-            ->join($m->getTable(),'a.id=b.content_id','left join','b')
-            ->where('a.id',$id)
-            ->select('*')
-            ->query();
-        if(empty($r['result'])){
-            return false;
-        }else{
-            return $r['result'][0];
-        }
-    }
-
-    public function getArticlePrevNext(int $id,int $catid=0)
-    {
-        if($catid>0)
-        {
-            $sql = "(select id,title,'prev' as flag from {$this->getTable()} where id < {$id} and catid={$catid} order by id desc limit 1) 
-        union all (select id,title,'next' as flag from {$this->getTable()} where id > {$id} and catid={$catid} order by id asc limit 1);";
-        }else{
-            $sql = "(select id,title,'prev' as flag from {$this->getTable()} where id < {$id} order by id desc limit 1) 
-        union all (select id,title,'next' as flag from {$this->getTable()} where id > {$id}  order by id asc limit 1);";
-
-        }
-        //echo $sql;
-        $r = $this->db->query($sql);
-        //print_r( $r);
-        if(empty($r['result'])){
-            return false;
-        }else{
-            return $r['result'];
-        }
-    }
-
-    public function getByFlag(string $flag='p',int $start=0,int $end=9,int $catid=0,int $status=0,$fields='*')
-    {
-        //FIND_IN_SET();
-        $m = $this->loader->model(ContentHitsModel::class,$this);
-        if($catid!=0){
-            $sql = "select {$fields} from {$this->getTable()} a left join  {$m->getTable()} b on a.id=b.content_id  where a.catid={$catid} and FIND_IN_SET('{$flag}',a.flag) and a.status={$status} order by a.id desc limit {$start},{$end} ";
-        }else{
-            $sql = "select {$fields} from {$this->getTable()} a left join  {$m->getTable()} b on a.id=b.content_id  where FIND_IN_SET('{$flag}',a.flag) and a.status={$status} order by a.id desc limit {$start},{$end} ";
-        }
-        //echo $sql;
-
-        $r = $this->db->query($sql);
-
-        if(empty($r['result'])){
-            return false;
-        }else{
-            return $r['result'];
-        }
-    }
-
-    public function getNew(int $catid=0,int $start=0,int $end=9,int $status=null,$fields='*')
-    {
-        if($status!=null){
-            if($catid!=0){
-                $where = " where a.stauts={$status} and a.catid={$catid}";
-            }else{
-                $where = " where a.stauts={$status}";
-            }
-        }else{
-            if($catid!=0) {
-                $where = "where a.catid={$catid}";
-            }else{
-                $where = "";
-            }
-        }
-        $m = $this->loader->model(ContentHitsModel::class,$this);
-        $join = " left join {$m->getTable()} as b on a.id=b.content_id ";
-        //FIND_IN_SET();
-        if($catid!=0){
-            $sql = "select {$fields} from {$this->getTable()} as a {$join} {$where} order by a.id desc limit {$start},{$end} ";
-        }else{
-            $sql = "select {$fields} from {$this->getTable()} as a {$join} $where  order by a.id desc limit {$start},{$end} ";
-        }
-        //echo $sql;
-        $r = $this->db->query($sql);
-        //嵌入总记录
-        $count_arr = $this->db->query("select count(0) as num from {$this->getTable()} as a {$where}");
-        $count = $count_arr['result'][0]['num'];
-        if($count>$end){
-            $r['num'] =$count;
-        }else{
-            $r['num'] = $end;
-        }
-        if(empty($r['result'])){
-            return false;
-        }else{
+            $r['result'] = $r['result'][0];
             return $r;
         }
     }
@@ -188,7 +93,7 @@ class ImUserFriendModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -221,7 +126,7 @@ class ImUserFriendModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 

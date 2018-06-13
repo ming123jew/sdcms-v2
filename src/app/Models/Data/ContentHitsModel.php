@@ -38,7 +38,7 @@ class ContentHitsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -57,7 +57,8 @@ class ContentHitsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'][0] ;
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -74,7 +75,7 @@ class ContentHitsModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -103,7 +104,7 @@ class ContentHitsModel extends BaseModel
         {
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -126,7 +127,7 @@ class ContentHitsModel extends BaseModel
         {
             return false;
         }else{
-            return $r['result'] ;
+            return $r ;
         }
     }
 

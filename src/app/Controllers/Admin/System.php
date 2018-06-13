@@ -42,7 +42,8 @@ class System extends Base
         }else{
 
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = $this->Model['MenuModel']->getAll();
+            $this->Data['ALL_MenuModel'] = $this->Model['MenuModel']->getAll();
+            $all = $this->Data['ALL_MenuModel']['result'];
             $info = '';
 
             if($all){
@@ -93,7 +94,7 @@ class System extends Base
     public function http_menu_add(){
         if($this->http_input->getRequestMethod()=='POST'){
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $data = [
+            $this->Data['post'] = [
                 $this->http_input->post('parent_id'),
                 $this->http_input->post('name'),
                 $this->http_input->post('icon'),
@@ -105,19 +106,18 @@ class System extends Base
                 $this->http_input->post('remark'),
                 $this->http_input->post('cc'),
             ];
-            $r_menu_model = $this->Model['MenuModel']->insertMultiple(['parent_id','name','icon','m','c','a','url_param','status','remark','cc'],$data);
-            if(!$r_menu_model){
-                unset($data,$r_menu_model);
+            $this->Data['MenuModel'] = $this->Model['MenuModel']->insertMultiple(['parent_id','name','icon','m','c','a','url_param','status','remark','cc'],$this->Data['post']);
+            if(!$this->Data['MenuModel']['result']){
                 parent::httpOutputTis('MenuModel添加请求失败.');
             }else{
-                unset($data);
-                parent::httpOutputEnd('菜单添加成功.','菜单添加失败.',$r_menu_model);
+                parent::httpOutputEnd('菜单添加成功.','菜单添加失败.',$this->Data['MenuModel']['result']);
             }
 
         }else{
             $parent_id  =  $this->http_input->postGet('parent_id') ?? 0;
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = $this->Model['MenuModel']->getAll();
+            $this->Data['ALL_MenuModel'] = $this->Model['MenuModel']->getAll();
+            $all = $this->Data['ALL_MenuModel']['result'];
             $info='';
             if($all) {
                 $selected = $parent_id;
@@ -150,7 +150,7 @@ class System extends Base
         $menu_id =  intval($this->http_input->post('menu_id'));
         if($this->http_input->getRequestMethod()=='POST' && $menu_id){
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $data = [
+            $this->Data['post']  = [
                 'parent_id'=> $this->http_input->post('parent_id'),
                 'name'=>$this->http_input->post('name'),
                 'icon'=>$this->http_input->post('icon'),
@@ -162,13 +162,13 @@ class System extends Base
                 'remark'=>$this->http_input->post('remark'),
                 'cc'=>$this->http_input->post('cc'),
             ];
-            $r_menu_model = $this->Model['MenuModel']->updateById($menu_id,$data);
-            if(!$r_menu_model){
-                unset($menu_id,$data,$r_menu_model);
+            $this->Data['MenuModel'] = $this->Model['MenuModel']->updateById($menu_id,$this->Data['post']);
+            if(!$this->Data['MenuModel']['result']){
+                unset($menu_id);
                 parent::httpOutputTis('MenuModel编辑请求失败.');
             }else{
-                unset($menu_id,$data);
-                parent::httpOutputEnd('菜单更新成功.','菜单更新失败.',$r_menu_model);
+                unset($menu_id);
+                parent::httpOutputEnd('菜单更新成功.','菜单更新失败.',$this->Data['MenuModel']['result']);
             }
 
         }else{
@@ -180,9 +180,10 @@ class System extends Base
                 $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
                 // 查找单条记录
                 $d_menu_model = $this->Model['MenuModel']->getOneById($menu_id);
-                $parent_id  =  $d_menu_model['parent_id'];
+                $parent_id  =  $d_menu_model['result']['parent_id'];
                 //查找所有
-                $all = $this->Model['MenuModel']->getAll();
+                $this->Data['ALL_MenuModel'] = $this->Model['MenuModel']->getAll();
+                $all = $this->Data['ALL_MenuModel']['result'];
                 $info='';
                 if($all) {
                     $selected = $parent_id;
@@ -198,7 +199,7 @@ class System extends Base
                 }
 
                 parent::templateData('selectCategorys',$info);
-                parent::templateData('d_menu_model',$d_menu_model);
+                parent::templateData('d_menu_model',$d_menu_model['result']);
                 unset($d_menu_model,$parent_id,$all,$info,$selected,$r,$array,$str,$tree,$parentid,$where,$selected,$spacer,$name);
                 //web or app
                 parent::webOrApp(function (){
@@ -210,13 +211,16 @@ class System extends Base
         }
     }
 
-
+    /**
+     * 删除菜单
+     */
     public function http_menu_delete(){
         $menu_id =  intval($this->http_input->post('menu_id'));
         if($this->http_input->getRequestMethod()=='POST' && $menu_id){
             //查找是否存在子菜单
             $this->Model['MenuModel'] =  $this->loader->model(MenuModel::class,$this);
-            $all = $this->Model['MenuModel']->getAll();
+            $this->Data['ALL_MenuModel'] = $this->Model['MenuModel']->getAll();
+            $all = $this->Data['ALL_MenuModel']['result'];
             if($all){
                 $tree       = new Tree();
                 $tree->init($all);
@@ -228,12 +232,12 @@ class System extends Base
                 //print_r($arr_delete);
                 $r_menu_model = $this->Model['MenuModel']->delete($arr_delete);
                 //print_r($all_child);
-                if(!$r_menu_model){
+                if(!$r_menu_model['result']){
                     unset($menu_id,$all,$tree,$arr_all_child,$arr_delete,$key,$value,$r_menu_model);
                     parent::httpOutputTis('MenuModel删除请求失败.');
                 }else{
                     unset($menu_id,$all,$tree,$arr_all_child,$arr_delete,$key,$value);
-                    parent::httpOutputEnd('菜单删除成功.','菜单删除失败.',$r_menu_model);
+                    parent::httpOutputEnd('菜单删除成功.','菜单删除失败.',$r_menu_model['result']);
                 }
             }
         }

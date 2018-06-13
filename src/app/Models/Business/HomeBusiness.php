@@ -176,7 +176,7 @@ class HomeBusiness extends BaseBusiness
         $this->ContentHitsModel = $this->loader->model(ContentHitsModel::class,$this);
         $d_ContentHitsModel = $this->ContentHitsModel->updateHits($content_id,$d);
 
-        if($d!=false&&$d_ContentHitsModel!=false){
+        if($d!=false&&$d_ContentHitsModel['result']!=false){
             return $d;
         }else{
             return false;

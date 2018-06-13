@@ -36,7 +36,8 @@ class UserModel extends BaseModel
         if(empty($val['result'])){
             return false;
         }else{
-            return $val['result'][0] ;
+            $val['result'] = $val['result'][0];
+            return $val ;
         }
     }
 
@@ -53,7 +54,7 @@ class UserModel extends BaseModel
         if(empty($val['result'])){
             return false;
         }else{
-            return $val['result'] ;
+            return $val;
         }
     }
 
@@ -102,7 +103,7 @@ class UserModel extends BaseModel
      * @throws \Throwable
      */
     public function getOneUserByUsernameAndPassword($username,$password){
-        $val = $this->db->select('*')
+        $val = $this->db->select('id,username,regtime,status,groupid,email,roleid,sign,avatar')
             ->from($this->prefix.$this->table)
             ->where('username',$username)
             ->where('password',$password)
@@ -111,7 +112,8 @@ class UserModel extends BaseModel
         if(empty($val['result'])){
             return false;
         }else{
-            return $val['result'][0];
+            $val['result'] = $val['result'][0];
+            return $val ;
         }
 
     }

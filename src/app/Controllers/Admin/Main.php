@@ -80,9 +80,9 @@ class Main extends Base
         if($this->http_input->getRequestMethod()=='POST'){
             $this->Model['UserModel'] = $this->loader->model(UserModel::class,$this);
             $this->Data['UserModel'] = $this->Model['UserModel']->getOneUserByUsernameAndPassword($this->http_input->post('username'),$this->http_input->post('password'));
-            print_r($this->Data['UserModel']);
+            print_r($this->Data['UserModel']['result']);
             //验证失败
-            if(empty($this->Data['UserModel'])){
+            if(empty($this->Data['UserModel']['result'])){
                 $end = [
                     'status' => 0,
                     'code'=>200,
@@ -90,20 +90,17 @@ class Main extends Base
                 ];
             }else{
 
-                if($this->Data['UserModel']){
+                if($this->Data['UserModel']['result']){
                     //储存到SESSION - memory
-                    unset($this->Data['UserModel']['password']);
-                    $session_data = $this->Data['UserModel'];
-                    sessions($this,$this->AdminSessionField,$session_data);
-
+                    sessions($this,$this->AdminSessionField,$this->Data['UserModel']['result']);
                     //查询权限，并存到Cache
-                    $role_id = $session_data['roleid'];
+                    $role_id = $this->Data['UserModel']['result']['roleid'];
                     $this->Model['RolePrivModel'] = $this->loader->model(RolePrivModel::class,$this);
                     $this->Data['RolePrivModel'] =  $this->Model['RolePrivModel']->getByRoleId($role_id);
                     //cache存在并发内存泄漏,不再使用
                     //$cache = Cache::getCache('WebCache');
                    // $cache->addMap($this->AdminCacheRoleIdDataField.$role_id,serialize($d_model_rolepriv));
-                    set_cache($this->AdminCacheRoleIdDataField.$role_id,($this->Data['RolePrivModel']));
+                    set_cache($this->AdminCacheRoleIdDataField.$role_id,($this->Data['RolePrivModel']['result']));
 
                     //获取角色菜单，并存到cache
                     $this->Data['role_menu'] = self::_getRoleMenu($role_id);
@@ -124,7 +121,7 @@ class Main extends Base
                 }
 
             }
-            unset($session_data,$role_id);
+            unset($role_id);
             $this->http_output->end(json_encode($end),false);
 
         }else{
@@ -186,6 +183,7 @@ class Main extends Base
 
     /**
      * 获取角色菜单
+     * @param $role_id
      * @return mixed
      */
     private function _getRoleMenu($role_id){
@@ -194,27 +192,29 @@ class Main extends Base
         $this->Data['MenuModel'] = $this->Model['MenuModel']->getAll($role_id);
 
         //处理数据添加url属性
-        foreach ( $this->Data['MenuModel'] as $key=>$value){
+        $this->Data['MenuModelExt'] = [];
+        foreach ( $this->Data['MenuModel']['result'] as $key=>$value){
+            $this->Data['MenuModelExt'][$key] = $value;
             if($value['a']=='#'){
-                $this->Data['MenuModel'][$key]['url'] = 'javascript:;';
+                $this->Data['MenuModelExt'][$key]['url'] = 'javascript:;';
             }else{
-                $this->Data['MenuModel'][$key]['url'] = url($value['m'],$value['c'],$value['a'],$value['url_param']);
+                $this->Data['MenuModelExt'][$key]['url'] = url($value['m'],$value['c'],$value['a'],$value['url_param']);
             }
         }
         //获取子级菜单
         $this->Model['Tree'] = new Tree();
-        $this->Model['Tree']->init( $this->Data['MenuModel']);
+        $this->Model['Tree']->init( $this->Data['MenuModelExt'] );
         $subset = [];
-        foreach ( $this->Data['MenuModel'] as $key2=>$value2){
+        foreach ( $this->Data['MenuModel']['result'] as $key2=>$value2){
             $subset = $this->Model['Tree']->get_child($value2['id']);
             if($subset){
-                $this->Data['MenuModel'][$key2]['subset'] = array_values($subset);
+                $this->Data['MenuModelExt'][$key2]['subset'] = array_values($subset);
             }else{
-                $this->Data['MenuModel'][$key2]['subset'] = $subset;
+                $this->Data['MenuModelExt'][$key2]['subset'] = $subset;
             }
         }
         unset($subset,$key,$value,$key2,$value2);
-        return $this->Data['MenuModel'];
+        return $this->Data['MenuModelExt'];
     }
 
 }

@@ -30,7 +30,7 @@ class ImGroupModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -42,7 +42,7 @@ class ImGroupModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
@@ -79,7 +79,8 @@ class ImGroupModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'][0];
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -90,7 +91,8 @@ class ImGroupModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            $r['result'] = $r['result'][0];
+            return $r;
         }
     }
 
@@ -123,7 +125,7 @@ class ImGroupModel extends BaseModel
         if(empty($r['result'])){
             return false;
         }else{
-            return $r['result'] ;
+            return $r;
         }
     }
 
