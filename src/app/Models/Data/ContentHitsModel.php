@@ -34,7 +34,7 @@ class ContentHitsModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('content_id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -53,7 +53,7 @@ class ContentHitsModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('content_id',$content_id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -70,7 +70,7 @@ class ContentHitsModel extends BaseModel
     public function deleteByContentId(int $content_id)
     {
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('content_id',$content_id)->delete()->query();
+            ->where('content_id',$content_id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -98,7 +98,7 @@ class ContentHitsModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result']))
         {
@@ -121,7 +121,7 @@ class ContentHitsModel extends BaseModel
         $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('content_id',$content_id)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result']))
         {
@@ -144,9 +144,10 @@ class ContentHitsModel extends BaseModel
         $curren_time = time();
         if(!$sel)
         {
-            $r = self::getByContentId($content_id);
+            $rs = self::getByContentId($content_id);
+            $r = $rs['result'];
         }else{
-            $r = $sel;
+            $r = $sel['result'];
         }
         $views = $r['views'] + 1;
         $yesterdayviews = (date('Ymd', $r['updatetime']) == date('Ymd', strtotime('-1 day'))) ? $r['dayviews'] : $r['yesterdayviews'];

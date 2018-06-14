@@ -71,7 +71,7 @@ class Main extends Base
         parent::templateData('d_get_recommend',$d_get_recommend['result']);
         parent::templateData('d_get_new',$d_get_new['result']);
         parent::templateData('page_d_get_new',page_bar($d_get_new['num'],$p,10,5,$this));
-        parent::templateData('d_get_new_comment',$d_get_new_comment);
+        parent::templateData('d_get_new_comment',$d_get_new_comment['result']);
         $date = date('Y-m-d');
         parent::templateData('date',$date.' '.get_week($date));
         unset($p,$end,$start,$d_slide,$d_get_recommend,$d_get_new,$d_get_new_comment,$date);

@@ -29,30 +29,29 @@ class Article extends Base
         if($id>0){
             $this->Model['HomeBusiness'] = $this->loader->model(HomeBusiness::class,$this);
             //[读取内容+点击+更新点击:start]
-            $d = $this->Model['HomeBusiness']->get_article($id);
+            $this->Data['HomeBusiness'] = $this->Model['HomeBusiness']->get_article($id);
             //[读取内容+点击+更新点击:end]
 
             //获取对应的栏目名称
-            $d['catname'] = get_catname_by_catid( $d['catid'],$this);
+            $this->Data['HomeBusiness']['result']['catname'] = get_catname_by_catid( $this->Data['HomeBusiness']['result']['catid'],$this);
 
             //[获取推荐:start]
-            $d_get_recommend = $this->Model['HomeBusiness']->get_recommend();
+            $this->Data['HomeBusinessGetRecommend']  = $this->Model['HomeBusiness']->get_recommend();
             //[获取推荐:end]
 
             //[获取最新评论:start]
-            $d_get_new_comment = $this->Model['HomeBusiness']->get_new_comment();
+            $this->Data['HomeBusinessGetNewComment'] = $this->Model['HomeBusiness']->get_new_comment();
             //[获取最新评论:end]
 
-            $d['body'] = htmlspecialchars_decode($d['body']);
-            parent::templateData('article',$d);
-            //print_r($d);
-
-            parent::templateData('d_get_recommend',$d_get_recommend['result']);
-            parent::templateData('d_get_new_comment',$d_get_new_comment['result']);
+            $this->Data['HomeBusiness']['result']['body'] = htmlspecialchars_decode($this->Data['HomeBusiness']['result']['body']);
+            //print_r($this->Data['HomeBusiness']['result']);
+            parent::templateData('article',$this->Data['HomeBusiness']['result']);
+            parent::templateData('d_get_recommend',$this->Data['HomeBusinessGetRecommend']['result']);
+            parent::templateData('d_get_new_comment',$this->Data['HomeBusinessGetNewComment']['result']);
             $date = date('Y-m-d');
             parent::templateData('date',$date.' '.get_week($date));
 
-            unset($id,$d,$d_get_recommend,$d_get_new_comment,$date);
+            unset($id,$d,$date);
             //web or app
             parent::webOrApp(function (){
                 $template = $this->loader->view('app::Home/article_read',['data'=>$this->TemplateData,'message'=>'']);

@@ -482,9 +482,9 @@ function get_role_byid($roleid,$context,$flag='__CACHE_ROLE__')
         }else{
             $m = get_instance()->loader->model(\app\Models\Data\RoleModel::class,$context);
             $d = $m->getAll();
-            $all_role = $d;
+            $all_role = $d['result'];
             //存入缓存
-            set_cache($flag.'_'.$roleid,$d);
+            set_cache($flag.'_'.$roleid,$all_role);
             print_r('get_role_byid::role from db.');
 
         }

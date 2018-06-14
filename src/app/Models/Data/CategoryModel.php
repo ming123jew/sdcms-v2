@@ -32,7 +32,7 @@ class CategoryModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -50,7 +50,7 @@ class CategoryModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -66,7 +66,7 @@ class CategoryModel extends BaseModel
      */
     public function deleteById(int $id){
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->query();
+            ->where('id',$id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -93,7 +93,7 @@ class CategoryModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -113,7 +113,7 @@ class CategoryModel extends BaseModel
         $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -132,7 +132,7 @@ class CategoryModel extends BaseModel
      */
     public function setInc(int $catid, string $field, int $num=1){
         $sql = 'update '.$this->prefix.$this->table.' set '.$field.'='.$field.'+'.$num.' where id='.$catid;
-        $r = $this->db->query($sql);
+        $r = $this->db->query($sql)->getResult();
 
         if(empty($r['result'])){
             return false;
@@ -151,7 +151,7 @@ class CategoryModel extends BaseModel
      */
     public function setDec(int $catid, string $field, int $num=1){
         $sql = 'update '.$this->prefix.$this->table.' set '.$field.'='.$field.'-'.$num.' where id='.$catid;
-        $r = $this->db->query($sql);
+        $r = $this->db->query($sql)->getResult();
 
         if(empty($r['result'])){
             return false;

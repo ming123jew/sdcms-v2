@@ -32,7 +32,7 @@ class UserModel extends BaseModel
             ->where('id',$id)
             ->orderBy('id','desc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -50,7 +50,7 @@ class UserModel extends BaseModel
         $val = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','desc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -70,7 +70,7 @@ class UserModel extends BaseModel
             ->set('password',$data['password'])
             ->set('email',$data['email'])
             ->set('regtime',time())
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -88,7 +88,7 @@ class UserModel extends BaseModel
             ->from($this->prefix.$this->table)
             ->where('username',$username)
             ->limit(1)
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -108,7 +108,7 @@ class UserModel extends BaseModel
             ->where('username',$username)
             ->where('password',$password)
             ->limit(1)
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{

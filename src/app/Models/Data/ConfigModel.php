@@ -29,7 +29,7 @@ class ConfigModel extends BaseModel
             ->from($this->prefix.$this->table)
             ->limit(1)
             ->orderBy('id','asc')
-            ->query();
+            ->query()->getResult();
 
         if(empty($val['result'])){
             return false;
@@ -47,7 +47,7 @@ class ConfigModel extends BaseModel
     public function addOne($data){
         $val = $this->db->set($data)
             ->insert($this->prefix.$this->table)
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -65,7 +65,7 @@ class ConfigModel extends BaseModel
         $val = $this->db->set('content',$data['content'])
             ->where('id',$data['id'])
             ->update($this->prefix.$this->table)
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{
@@ -97,7 +97,7 @@ class ConfigModel extends BaseModel
             ->from($this->prefix.$this->table)
             ->orderBy('list_order','asc')
             ->orderBy('id','asc')
-            ->query();
+            ->query()->getResult();
         if(empty($val['result'])){
             return false;
         }else{

@@ -29,7 +29,7 @@ class TaskLogModel extends BaseModel
         $return = '';
         $res = $this->db->insert($this->prefix.$this->table)
             ->set('content',serialize($data))
-            ->query();
+            ->query()->getResult();
         if(empty($res['result'])){
             $return = false;
         }else{

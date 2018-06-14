@@ -49,17 +49,15 @@ class Content extends Base
             $this->Data['end'] = 10;
             $this->Data['start'] = ($this->Data['p']-1)*$this->Data['end'];
             $this->Data['ContentModel'] =  $this->Model['ContentModel']->getAllByPage($this->Data['start'],$this->Data['end']);
-            $this->Data['list'] = [];
             if($this->Data['ContentModel']['result'])
             {
                 foreach ($this->Data['ContentModel']['result'] as $n=> $v)
                 {
-                    $this->Data['list'][$n] = $v;
-                    $this->Data['list'][$n]['str_manage'] = check_role('Admin', 'Content', 'content_edit', $this) ? '<a href="' . url('Admin', 'Content', 'content_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
-                    $this->Data['list'][$n]['str_manage'] .= check_role('Admin', 'Content', 'content_delete', $this) ? '<a  onclick="content_delete(' . $v['id'] . ')" href="javascript:;">删除</a>' : '';
+                    $this->Data['ContentModel']['result'][$n]['str_manage'] = check_role('Admin', 'Content', 'content_edit', $this) ? '<a href="' . url('Admin', 'Content', 'content_edit', ["id" => $v['id']]) . '">编辑</a> |' : '';
+                    $this->Data['ContentModel']['result'][$n]['str_manage'] .= check_role('Admin', 'Content', 'content_delete', $this) ? '<a  onclick="content_delete(' . $v['id'] . ')" href="javascript:;">删除</a>' : '';
                 }
             }
-            parent::templateData('list',$this->Data['list']);
+            parent::templateData('list',$this->Data['ContentModel']['result']);
             parent::templateData('page',page_bar($this->Data['ContentModel']['num'],$this->Data['p'],10,5,$this));
             //parent::templateData('test',1);
             //unset($r);

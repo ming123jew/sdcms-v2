@@ -32,7 +32,7 @@ class TagsModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('content_id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -50,7 +50,7 @@ class TagsModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('content_id',$content_id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -65,7 +65,7 @@ class TagsModel extends BaseModel
      */
     public function deleteByContentId(int $content_id){
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('content_id',$content_id)->delete()->query();
+            ->where('content_id',$content_id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -92,7 +92,7 @@ class TagsModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;

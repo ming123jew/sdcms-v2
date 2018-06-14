@@ -145,30 +145,32 @@ class HomeBusiness extends BaseBusiness
     public function get_article(int $content_id)
     {
         $this->ContentModel =  $this->loader->model(ContentModel::class,$this);
+
         //获取内容
         $d = $this->ContentModel->getArticle($content_id);
+
         //获取上下篇
-        $d['prev'] = '最前一篇';
-        $d['next'] = '最后一篇';
-        $d_prev_next = $this->ContentModel->getArticlePrevNext($d['id'],$d['catid']);
-        foreach ($d_prev_next as $k=>$v)
+        $d['result']['prev'] = '最前一篇';
+        $d['result']['next'] = '最后一篇';
+        $d_prev_next = $this->ContentModel->getArticlePrevNext($d['result']['id'],$d['result']['catid']);
+        foreach ($d_prev_next['result'] as $k=>$v)
         {
             if($v['flag']=='prev')
             {
                 if($v)
                 {
-                    $d['prev'] = '<a href="'.url('','','read',['id'=>$v['id']]).'" rel="prev">'.$v['title'].'</a>';
+                    $d['result']['prev'] = '<a href="'.url('','','read',['id'=>$v['id']]).'" rel="prev">'.$v['title'].'</a>';
                 } else {
-                    $d['prev'] = '最前一篇';
+                    $d['result']['prev'] = '最前一篇';
                 }
 
             }else if($v['flag']=='next')
             {
                 if($v)
                 {
-                    $d['next'] = '<a href="'.url('','','read',['id'=>$v['id']]).'" rel="next">'.$v['title'].'</a>';
+                    $d['result']['next'] = '<a href="'.url('','','read',['id'=>$v['id']]).'" rel="next">'.$v['title'].'</a>';
                 } else {
-                    $d['next'] = '最后一篇';
+                    $d['result']['next'] = '最后一篇';
                 }
             }
         }

@@ -31,13 +31,13 @@ class MenuModel extends BaseModel
                 ->where('status',$status)
                 ->orderBy('list_order','asc')
                 ->orderBy('id','asc')
-                ->query();
+                ->query()->getResult();
         }else{
             $val = $this->db->select('*')
                 ->from($this->prefix.$this->table)
                 ->orderBy('list_order','asc')
                 ->orderBy('id','asc')
-                ->query();
+                ->query()->getResult();
         }
 
         if(empty($val['result'])){
@@ -58,7 +58,7 @@ class MenuModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -80,7 +80,7 @@ class MenuModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -100,7 +100,7 @@ class MenuModel extends BaseModel
         $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -118,7 +118,7 @@ class MenuModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->whereIn('id',$values)
             ->delete()
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;

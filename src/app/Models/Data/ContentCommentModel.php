@@ -30,7 +30,7 @@ class ContentCommentModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -56,7 +56,7 @@ class ContentCommentModel extends BaseModel
                 ->where('content_id',$content_id)
                 ->select('a.*')
                 ->limit("{$start},{$end}")
-                ->query();
+                ->query()->getResult();
             //嵌入总记录
             $count_arr = $this->db->query("select count(0) as num from {$this->getTable()} where content_id={$content_id}");
         }else{
@@ -64,7 +64,7 @@ class ContentCommentModel extends BaseModel
                 ->orderBy('a.id','desc')
                 ->select('a.*')
                 ->limit("{$start},{$end}")
-                ->query();
+                ->query()->getResult();
             //嵌入总记录
             $count_arr = $this->db->query("select count(0) as num from {$this->getTable()}");
         }
@@ -100,13 +100,13 @@ class ContentCommentModel extends BaseModel
                 ->where('catid',$catid)
                 ->select('a.*')
                 ->limit("{$start},{$end}")
-                ->query();
+                ->query()->getResult();
         }else{
             $r = $this->db->from($this->prefix.$this->table,'a')
                 ->orderBy('a.id','desc')
                 ->select('a.*')
                 ->limit("{$start},{$end}")
-                ->query();
+                ->query()->getResult();
         }
         if(empty($r['result'])){
             return false;
@@ -126,7 +126,7 @@ class ContentCommentModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -143,7 +143,7 @@ class ContentCommentModel extends BaseModel
      */
     public function deleteById(int $id,$transaction_id=null){
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->query();
+            ->where('id',$id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -171,7 +171,7 @@ class ContentCommentModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -192,7 +192,7 @@ class ContentCommentModel extends BaseModel
         $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;

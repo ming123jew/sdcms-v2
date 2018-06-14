@@ -167,7 +167,7 @@
             <ul>
                 <?php foreach ($data['d_get_recommend'] as $k=>$v){?>
                 <li>
-                    <a target="_blank" href="<?php echo url('','Article','Read',['id'=>$v['id']]);?>">
+                    <a target="_blank" href="<?php echo url('','Article','Read',['id'=>$v['content_id']]);?>">
                         <span class="thumb"><img src="images/icon/icon.png" alt=""></span>
                         <span class="text"> <?php echo $v['title'];?> </span>
                         <span class="text-muted">阅读(<?php echo $v['views'];?>)</span>

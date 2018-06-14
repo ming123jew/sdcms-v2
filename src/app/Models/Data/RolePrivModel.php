@@ -32,7 +32,7 @@ class RolePrivModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('role_id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -50,7 +50,7 @@ class RolePrivModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('role_id',$role_id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -65,7 +65,7 @@ class RolePrivModel extends BaseModel
      */
     public function deleteByRoleId(int $id){
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('role_id',$id)->delete()->query();
+            ->where('role_id',$id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -90,7 +90,7 @@ class RolePrivModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -117,7 +117,7 @@ class RolePrivModel extends BaseModel
             ->where('c',$c)
             ->where('a',$a)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{

@@ -36,14 +36,14 @@ class StatsModel extends BaseModel
             ->from($this->prefix.$this->table)
             ->where('date',$date)
             ->limit(1)
-            ->query();
+            ->query()->getResult();
 
         if(empty($result['result'])){
 
             $result = $this->db->insert($this->prefix.$this->table)
                 ->set($set,1)
                 ->set('date',$date)
-                ->query();
+                ->query()->getResult();
             //返回退出
             $return = $result;
 
@@ -123,7 +123,7 @@ class StatsModel extends BaseModel
     public function updateNum($date,$type,$num){
         $result = '';
         $sql = 'update '.$this->prefix.$this->table.' set '.$type.'='.$type.'+'.$num.' where date="'.$date.'"';
-        $result = $this->db->query($sql);
+        $result = $this->db->query($sql)->getResult();
         if(!$result){
             $result = false;
         }else{

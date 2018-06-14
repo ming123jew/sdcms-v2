@@ -32,7 +32,7 @@ class SpiderTaskModel extends BaseModel
             ->orderBy('id','asc')
             ->where('uid',$uid)
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -49,7 +49,7 @@ class SpiderTaskModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->orderBy('id','asc')
             ->select('*')
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -71,7 +71,7 @@ class SpiderTaskModel extends BaseModel
             ->orderBy('id','desc')
             ->select('*')
             ->limit("{$start},{$end}")
-            ->query();
+            ->query()->getResult();
         //嵌入总记录
         $count_arr = $this->db->query("select count(0) as num from {$this->getTable()}");
         $count = $count_arr['result'][0]['num'];
@@ -99,7 +99,7 @@ class SpiderTaskModel extends BaseModel
         $r = $this->db->from($this->prefix.$this->table)
             ->where('id',$id)
             ->select($fields)
-            ->query();
+            ->query()->getResult();
         if(empty($r['result'])){
             return false;
         }else{
@@ -116,7 +116,7 @@ class SpiderTaskModel extends BaseModel
      */
     public function deleteById(int $id){
         $r = $this->db->from($this->prefix.$this->table)
-            ->where('id',$id)->delete()->query();
+            ->where('id',$id)->delete()->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -143,7 +143,7 @@ class SpiderTaskModel extends BaseModel
         $r = $this->db->insertInto($this->prefix.$this->table)
             ->intoColumns($intoColumns)
             ->intoValues($intoValues)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
@@ -163,7 +163,7 @@ class SpiderTaskModel extends BaseModel
         $r = $this->db->update($this->prefix.$this->table)
             ->set($columns_values)
             ->where('id',$id)
-            ->query();
+            ->query()->getResult();
         //print_r($r);
         if(empty($r['result'])){
             return false;
